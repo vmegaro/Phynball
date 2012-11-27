@@ -39,32 +39,6 @@ RigidBody * CircleRB::clone() {
 		solver);
 }
 
-void CircleRB::setXAcc(const float &x, const float &v, float &a) {
-	a = (Tx - friction*xVel)*oneOverMass;
-}
-
-void CircleRB::setYAcc(const float &x, const float &v, float &a){
-	a = (Ty - friction*yVel)*oneOverMass - gravityScale*g;
-}
-
-void CircleRB::setAngularAcc(const float &x, const float &v, float &a){
-	a = (Rx*Ty-Ry*Tx - friction*angularVel)*oneOverI;
-}
-
-void CircleRB::update(RigidBody *newRb){
-	solver->updateRigidBodyPositionAngleAndVelocities(this, newRb);
-	updateVertices();
-
-	// Debug
-	/*Rx = vertices.at(nwx)-xPos;
-	Ry = vertices.at(nwy)-yPos;
-	float r2 = vertices.at(nwx)*vertices.at(nwx)+vertices.at(nwy)*vertices.at(nwy);
-	Tx = -vertices.at(nwx)/r2;
-	Ty = -vertices.at(nwy)/r2;*/
-	
-	
-}
-
 float s, t;
 void CircleRB::updateVertices() {
 	float s = (float)(2*M_PI/nVert);

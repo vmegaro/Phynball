@@ -55,32 +55,6 @@ RigidBody * RectangleRB::clone() {
 		solver);
 }
 
-void RectangleRB::setXAcc(const float &x, const float &v, float &a) {
-	a = (Tx - friction*xVel)*oneOverMass;
-}
-
-void RectangleRB::setYAcc(const float &x, const float &v, float &a){
-	a = (Ty - friction*yVel)*oneOverMass - gravityScale*g;
-}
-
-void RectangleRB::setAngularAcc(const float &x, const float &v, float &a){
-	a = (Rx*Ty-Ry*Tx - friction*angularVel)*oneOverI;
-}
-
-void RectangleRB::update(RigidBody *newRb){
-	solver->updateRigidBodyPositionAngleAndVelocities(this, newRb);
-	updateVertices();
-
-	// Debug
-	/*Rx = vertices.at(nwx)-xPos;
-	Ry = vertices.at(nwy)-yPos;
-	float r2 = vertices.at(nwx)*vertices.at(nwx)+vertices.at(nwy)*vertices.at(nwy);
-	Tx = -vertices.at(nwx)/r2;
-	Ty = -vertices.at(nwy)/r2;*/
-	
-	
-}
-
 float eastVecX, eastVecY, northVecX, northVecY, relength;
 void RectangleRB::updateVertices() {
 	eastVecX = cos(angularPos)*halfWidth; // deltaX

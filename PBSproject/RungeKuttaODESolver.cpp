@@ -1,4 +1,5 @@
 #include "RungeKuttaODESolver.h"
+#include "RigidBody.h"
 #include <iostream>
 
 using namespace std;

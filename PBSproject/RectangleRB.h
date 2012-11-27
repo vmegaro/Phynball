@@ -1,5 +1,6 @@
+#ifndef C_RectangleRB
+#define C_RectangleRB
 #include "RigidBody.h"
-#include "RungeKuttaODESolver.h"
 #include <vector>
 
 using namespace std;
@@ -12,13 +13,7 @@ public:
 				float angularPosition, float angularVelocity,
 				float m, float frictionCoeff, float gravityResistance,
 				RungeKuttaODESolver *odeSolver);
-	void setXAcc(const float &x, const float &v, float &a);
-	void setYAcc(const float &x, const float &v, float &a);
-	void setAngularAcc(const float &x, const float &v, float &a);
-	void update(RigidBody *newRb);
 	RigidBody * clone();
-
-	RungeKuttaODESolver *solver;
 
 protected:
 
@@ -26,3 +21,5 @@ protected:
 
 	void updateVertices();
 };
+
+#endif

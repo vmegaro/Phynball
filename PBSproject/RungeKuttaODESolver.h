@@ -1,6 +1,6 @@
-#ifndef C_RungeKuttaODESolver
-#define C_RungeKuttaODESolver
-#include "RigidBody.h"
+#ifndef C_RKODES_H
+#define C_RKODES_H
+class RigidBody;
 
 class RungeKuttaODESolver {
 public:
