@@ -36,6 +36,9 @@
     <ClCompile Include="CircleRB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RigidBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLUT\glut.h">

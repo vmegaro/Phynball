@@ -67,6 +67,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RectangleRB.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RungeKuttaODESolver.cpp" />
     <ClCompile Include="Walls.cpp" />
   </ItemGroup>
