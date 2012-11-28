@@ -1,5 +1,48 @@
 #include "Board.h"
 
+bool PolygonIntersectionTest(vector<float> &p,vector<float> &q,pair<vector<int>, vector<int> > res){
+	int m=p.size()/2;
+	int n=q.size()/2;
+	int i,j,k;
+	float x,y;
+	bool odd = false;
+	for(i=0;i<m;i++){
+		x=p[2*i];
+		y=p[2*i+1];
+		k=n-1;
+		for(j=0;j<n;j++){
+			if ((((q[2*j+1]<y)&&(q[2*k+1]>=y))||((q[2*k+1]<y)&&(q[2*j+1]>=y)))&&((q[2*j]<=x)||(q[2*k]<=x))) {
+			      if (q[2*j]+(y-q[2*j+1])/(q[2*k+1]-q[2*j+1])*(q[2*k]-q[2*j])<x) odd=!odd;
+			}
+			k=j;
+		}
+		if(odd){
+			res.first.push_back(i);
+			res.second.push_back(j);
+			res.second.push_back(k);
+			return true;
+		}
+	}
+	for(i=0;i<n;i++){
+		x=q[2*i];
+		y=q[2*i+1];
+		k=n-1;
+		for(j=0;j<m;j++){
+			if ((((p[2*j+1]<y)&&(p[2*k+1]>=y))||((p[2*k+1]<y)&&(p[2*j+1]>=y)))&&((p[2*j]<=x)||(p[2*k]<=x))) {
+			      if (p[2*j]+(y-p[2*j+1])/(p[2*k+1]-p[2*j+1])*(p[2*k]-p[2*j])<x) odd=!odd;
+			}
+			k=j;
+		}
+		if(odd){
+			res.first.push_back(j);
+			res.first.push_back(k);
+			res.second.push_back(i);
+			return true;
+		}
+	}
+	return false;
+}
+
 Board::Board(){
 	rigidBodies = &rigidBodyVec1;
 	newRigidBodies = &rigidBodyVec2;
