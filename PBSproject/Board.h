@@ -20,13 +20,14 @@ public:
 	vector<RigidBody *> *rigidBodies;
 	vector<RigidBody *> *newRigidBodies;
 
+	Walls* walls;
+
 protected:
 
 	vector<RigidBody *> *aux;
 
 	vector<RigidBody *> rigidBodyVec1;
 	vector<RigidBody *> rigidBodyVec2;
-	Walls* walls;
 };
 
 #endif

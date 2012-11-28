@@ -12,6 +12,7 @@ public:
 			 float radius,
 			 float angularPosition, float angularVelocity,
 			 float m, float frictionCoeff, float gravityResistance,
+			 float elasticity,
 			 RungeKuttaODESolver *odeSolver);
 	RigidBody * clone();
 

@@ -9,7 +9,7 @@ public:
 	virtual void setYAcc(const float &x, const float &v, float &a);
 	virtual void setAngularAcc(const float &x, const float &v, float &a);
 	virtual void update(RigidBody *newRb);
-	virtual void handleCollision(RigidBody *rb, const float &xCollision, const float &yCollision);
+	virtual void handleCollision(RigidBody *rb, const float &xCollision, const float &yCollision, const int &edgeIndex);
 	virtual void handleResponseImpulse(const float &dvx, const float &dvy, const float &dva);
 	virtual RigidBody * clone() {return 0;};
 
@@ -28,6 +28,7 @@ public:
 protected:
 	float mass, momentOfInertia;
 	float oneOverMass, oneOverI;
+	float e;
 	float gravityScale;
 	float friction;
 

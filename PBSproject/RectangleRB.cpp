@@ -23,6 +23,7 @@ RectangleRB::RectangleRB(float xPosition, float yPosition,
 						 float recWidth, float recHeight,
 						 float angularPosition, float angularVelocity,
 						 float m, float frictionCoeff, float gravityResistance,
+						 float elasticity,
 						 RungeKuttaODESolver *odeSolver) {
 
 							 xPos = xPosition; yPos = yPosition;
@@ -31,6 +32,7 @@ RectangleRB::RectangleRB(float xPosition, float yPosition,
 							 halfWidth = width*0.5f; halfHeight = heigth*0.5f;
 							 angularPos = angularPosition; angularVel = angularVelocity;
 							 mass = m; friction = frictionCoeff; gravityScale = gravityResistance;
+							 e = elasticity;
 							 momentOfInertia = mass*(width*width+heigth*heigth)/12.0f;
 							 oneOverMass = 1.0f/mass; oneOverI = 1.0f/momentOfInertia;
 							 Tx = 0.0f; Ty = 0.0f; Rx = 0.0f; Ry = 0.0f;
@@ -52,6 +54,7 @@ RigidBody * RectangleRB::clone() {
 		width, heigth,
 		angularPos, angularVel,
 		mass, friction, gravityScale,
+		e,
 		solver);
 }
 
