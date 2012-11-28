@@ -26,7 +26,7 @@ bool PolygonIntersectionTest(vector<float> &p,vector<float> &q,pair<vector<int>,
 	for(i=0;i<n;i++){
 		x=q[2*i];
 		y=q[2*i+1];
-		k=n-1;
+		k=m-1;
 		for(j=0;j<m;j++){
 			if ((((p[2*j+1]<y)&&(p[2*k+1]>=y))||((p[2*k+1]<y)&&(p[2*j+1]>=y)))&&((p[2*j]<=x)||(p[2*k]<=x))) {
 			      if (p[2*j]+(y-p[2*j+1])/(p[2*k+1]-p[2*j+1])*(p[2*k]-p[2*j])<x) odd=!odd;
