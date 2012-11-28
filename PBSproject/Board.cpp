@@ -1,6 +1,6 @@
 #include "Board.h"
 
-bool PolygonIntersectionTest(vector<float> &p,vector<float> &q,pair<vector<int>, vector<int> > res){
+bool PolygonIntersectionTest(vector<float> &p,vector<float> &q,pair<vector<int>, vector<int> > &res){
 	int m=p.size()/2;
 	int n=q.size()/2;
 	int i,j,k;
