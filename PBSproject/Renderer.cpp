@@ -81,21 +81,6 @@ void display(){
 			glDepthFunc(GL_EQUAL);
 		}
 		
-		glLineWidth(1);
-		glColor3d(1,0,0);
-
-		glDepthFunc(GL_ALWAYS);
-		glBegin(GL_LINE_LOOP);
-
-		glVertex2d(board->walls->x2Pos,board->walls->y2Pos);
-		glVertex2d(board->walls->x1Pos,board->walls->y2Pos);
-		glVertex2d(board->walls->x1Pos,board->walls->y1Pos);
-		glVertex2d(board->walls->x2Pos,board->walls->y1Pos);
-
-		glEnd();
-		glDepthFunc(GL_EQUAL);
-
-		
 		glFlush();
 		glutPostRedisplay();
 		glutSwapBuffers();

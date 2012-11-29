@@ -70,7 +70,6 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RungeKuttaODESolver.cpp" />
-    <ClCompile Include="Walls.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
@@ -84,7 +83,6 @@
     <ClInclude Include="RungeKuttaODESolver.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="utilities.h" />
-    <ClInclude Include="Walls.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
