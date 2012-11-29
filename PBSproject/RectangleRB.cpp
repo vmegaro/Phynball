@@ -47,7 +47,7 @@ RectangleRB::RectangleRB(float xPosition, float yPosition,
 							 color[2] = 0.1;
 }
 
-RigidBody * RectangleRB::clone() {
+RectangleRB * RectangleRB::clone() {
 	return new RectangleRB(
 		xPos, yPos,
 		xVel,yVel,

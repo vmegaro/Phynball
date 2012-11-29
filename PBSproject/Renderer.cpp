@@ -60,7 +60,7 @@ void display(){
 		board->update();
 		
 		//draw
-		for(vector<RigidBody *>::iterator it= board->rigidBodies->begin();it != board->rigidBodies->end();it++){
+		for(vector<Shape *>::iterator it= board->shapes->begin();it != board->shapes->end();it++){
 			glColor3dv((*it)->color);
 
 			glBegin(GL_POLYGON);

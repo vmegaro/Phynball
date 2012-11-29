@@ -31,7 +31,7 @@ CircleRB::CircleRB(float xPosition, float yPosition,
 							 color[2] = 0.8;
 }
 
-RigidBody * CircleRB::clone() {
+CircleRB * CircleRB::clone() {
 	return new CircleRB(
 		xPos, yPos,
 		xVel,yVel,

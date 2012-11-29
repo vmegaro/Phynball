@@ -14,7 +14,8 @@ void RigidBody::setAngularAcc(const float &x, const float &v, float &a){
 	a = (Rx*Ty-Ry*Tx - friction*angularVel)*oneOverI;
 }
 
-void RigidBody::update(RigidBody *newRb){
+void RigidBody::update(Shape *newSh){
+	RigidBody *newRb = (RigidBody *)newSh;
 	solver->updateRigidBodyPositionAngleAndVelocities(this, newRb);
 	updateVertices();	
 }

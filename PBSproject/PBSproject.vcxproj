@@ -64,6 +64,7 @@
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="CircleRB.cpp" />
+    <ClCompile Include="DeformableObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RectangleRB.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -75,11 +76,14 @@
     <ClInclude Include="Board.h" />
     <ClInclude Include="CircleRB.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="DeformableObject.h" />
     <ClInclude Include="GLUT\glut.h" />
     <ClInclude Include="RectangleRB.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="RungeKuttaODESolver.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="utilities.h" />
     <ClInclude Include="Walls.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

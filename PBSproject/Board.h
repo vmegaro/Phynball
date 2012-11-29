@@ -1,7 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "RigidBody.h"
+#include "Shape.h"
 #include "Walls.h"
 
 using namespace std;
@@ -12,22 +12,22 @@ public:
 	Board(void);
 	~Board(void);
 
-	void addRigidBody(RigidBody *rb);
+	void addShape(Shape *s);
 	void addWalls(Walls *w);
 
 	void update();
 
-	vector<RigidBody *> *rigidBodies;
-	vector<RigidBody *> *newRigidBodies;
+	vector<Shape *> *shapes;
+	vector<Shape *> *newShapes;
 
 	Walls* walls;
 
 protected:
 
-	vector<RigidBody *> *aux;
+	vector<Shape *> *aux;
 
-	vector<RigidBody *> rigidBodyVec1;
-	vector<RigidBody *> rigidBodyVec2;
+	vector<Shape *> shapeVec1;
+	vector<Shape *> shapeVec2;
 };
 
 #endif

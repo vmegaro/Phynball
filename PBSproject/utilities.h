@@ -9,9 +9,13 @@
 #define UTILITIES_T_H
 
 #include <iostream>
+#include <stdio.h>
+#include <cassert>
 #include <string>
+#include <limits>
 #include <map>
-using std::map;
+#include <vector>
+using namespace std;
 
 //! Simple 2D vector class
 template<typename T>
@@ -163,6 +167,8 @@ std::ostream& operator<<( std::ostream& os, const  Vector2T<T> &v2 )
 	//os << '[' << i[0] << ", " << i[1] << ", " << i[2] << ']';
 	return os;
 }
+
+typedef Vector2T<float> Vector2f;
 
 //=====================================================================================*/
 
@@ -408,15 +414,12 @@ public:
 		m_numCols = numRowsCols;
 		m_rowData.resize(numRowsCols);
 	}
-/*
+
 	//! Computes: b = this * x
 	void MultVector(const vector<T> &x, vector<T> &b) const {
 		// Set b to zero:
-		for(size_t i=0; i<b.size(); i++)
-			b[i] = 0;
-
+		for(size_t i=0; i<b.size(); i++) b[i] = 0;
 		size_t nrows = GetNumRows();
-
 		for(size_t row=0; row<nrows; row++)
 		{
 			const map<size_t, T> &rowData = m_rowData[row];
@@ -439,46 +442,28 @@ public:
 			b[row] += rowSum;
 		}
 	}
-
-	/*! Modifies the matrix and the vector \c b so the linear system 'this * x = b' will have the solution \c value at index \c idx. The row
-		\c idx of this matrix must be occupied. */
-	void FixSolution(std::vector<T> &b, size_t idx, T value) {
-		size_t n = (size_t)b.size();
-		assert(GetNumCols() == n);
-		assert(GetNumRows() == n);
-		assert(idx >= 0 && idx < n);
-
-		map<size_t, T> &rowData = m_rowData[idx];
-
-		// Need at least one entry in row 'idx':
-		assert(rowData.size() > 0);
-
-		for(typename map<size_t, T>::iterator iter = rowData.begin(); iter != rowData.end(); iter++)
-		{
-			size_t col = iter->first;
-			assert(col <= idx);
-
-			b[col] -= iter->second * value;
-
-			if(col == idx)
-				iter->second = 1;
-			else
-				iter->second = 0;
-		}
-
-		b[idx] = value;
-
-		for(size_t i=idx+1; i<n; i++)
-		{
-			T oldValue = GetAt(i, idx);
-			if(oldValue != 0)
+	void Mult(const vector<Vector2T<T> > &x, const T alpha, const vector<Vector2T<T> > &y, vector<Vector2T<T> > &b) const {
+		size_t nrows = GetNumRows();
+		for(size_t row=0; row<nrows; row++){
+			const map<size_t, T> &rowData = m_rowData[row];
+			T rowSum = 0;
+			size_t row2=row/2;
+			size_t row0=row%2;
+			for(typename map<size_t, T>::const_iterator iter = rowData.begin(); iter != rowData.end(); iter++)
 			{
-				b[i] -= oldValue * value;
-				GetAt(i, idx) = 0;
+				size_t col = iter->first;
+				assert(col <= row);
+				size_t col2=col/2;
+				size_t col0=col%2;
+				T val = iter->second;
+				rowSum += val * (x[col2][col0]+alpha*y[col2][col0]);
+				if(col < row)
+					b[col2][col0] += val * (x[row2][row0]+alpha*y[row2][row0]);
 			}
+
+			b[row2][row0] += rowSum;
 		}
 	}
-
 	/*! Returns the element at (\c row, \c col). Only elements in the lower-triagonal part
 		of the matrix can be accessed! */
 	const T &operator()(size_t row, size_t col) const {
@@ -573,8 +558,149 @@ private:
 template<class T>
 T SparseSymmetricDynamicRowMatrixT<T>::m_zero = 0;
 
+typedef SparseSymmetricDynamicRowMatrixT<float> SMatrixf;
+
 //=====================================================================================*/
 
+template<class T>
+class SparseDynamicRowMatrixT
+{
+public:
+	/*! Constructor. The matrix will have \c numRowsCols rows and \c numRowsCols columns.
+		Only the lower-triagonal elements of the symmetric matrix will be stored. */
+	SparseDynamicRowMatrixT(size_t numRowsCols) {
+		m_numCols = numRowsCols;
+		m_rowData.resize(numRowsCols);
+	}
+
+	/*! Constructor. The matrix will have 0 rows and 0 columns.
+		Only the lower-triagonal elements of the matrix will be stored. */
+	SparseDynamicRowMatrixT() {
+		m_numCols = 0;
+	}
+
+	//! Removes all elements and resizes the matrix to size (0, 0)
+	void Clear() {
+		m_numCols = 0;
+		m_rowData.clear();
+	}
+
+	virtual ~SparseDynamicRowMatrixT() {}
+
+	//! Resizes the matrix to \c numRowsCols rows and \c numRowsCols columns and sets all elements to zero
+	void ClearResize(size_t numRowsCols) {
+		Clear();
+		m_numCols = numRowsCols;
+		m_rowData.resize(numRowsCols);
+	}
+
+	//! Computes: b = this * x
+	void MultVector(const vector<T> &x, vector<T> &b) const {
+		for(size_t i=0; i<b.size(); i++) b[i] = 0;
+		size_t nrows = GetNumRows();
+		for(size_t row=0; row<nrows; row++){
+			const map<size_t, T> &rowData = m_rowData[row];
+			for(typename map<size_t, T>::const_iterator iter = rowData.begin(); iter != rowData.end(); iter++){
+				size_t col = iter->first;
+				assert(col <= row);
+				T val = iter->second;
+				b[row] += val * x[col];
+			}
+		}
+	}
+	void Mult2(const vector<Vector2T<T> > &x, const T alpha, const vector<Vector2T<T> > &y, vector<Vector2T<T> > &b) const {
+		size_t nrows = GetNumRows();
+		for(size_t row=0; row<nrows; row++){
+			const map<size_t, T> &rowData = m_rowData[row];
+			size_t row2=row/2;
+			size_t row0=row%2;
+			for(typename map<size_t, T>::const_iterator iter = rowData.begin(); iter != rowData.end(); iter++){
+				size_t col = iter->first;
+				size_t col2=col/2;
+				size_t col0=col%2;
+				T val = iter->second;
+				b[row2][row0] += val * (x[col2][col0]*x[col2][col0]+alpha*x[col2][col0]*y[col2][col0]);
+			}
+		}
+	}
+	/*! Returns the element at (\c row, \c col). Only elements in the lower-triagonal part
+		of the matrix can be accessed! */
+	const T &operator()(size_t row, size_t col) const {
+		return GetAt(row, col);
+	}
+
+	/*! Returns the element at (\c row, \c col). Only elements in the lower-triagonal part
+		of the matrix can be accessed! */
+	T &operator()(size_t row, size_t col) {
+		return GetAt(row, col);
+	}
+
+	/*! Returns the element at (\c row, \c col). Only elements in the lower-triagonal part
+		of the matrix can be accessed! */
+	const T &GetAt(size_t row, size_t col) const {
+		assert(row >= 0 && row < GetNumRows());
+		assert(col >= 0 && col < GetNumCols());
+		const map<size_t, T> &rowData = m_rowData[row];
+		typename map<size_t, T>::const_iterator iter = rowData.find(col);
+		if(iter == rowData.end())
+			return m_zero;
+		return iter->second;
+	}
+
+	/*! Returns the element at (\c row, \c col). Only elements in the lower-triagonal part
+		of the matrix can be accessed! */
+	T &GetAt(size_t row, size_t col) {
+		assert(row >= 0 && row < GetNumRows());
+		assert(col >= 0 && col < GetNumCols());
+		map<size_t, T> &rowData = m_rowData[row];
+		typename map<size_t, T>::iterator iter = rowData.find(col);
+		if(iter == rowData.end())
+		{
+			// Q_ASSERT(FALSE);	// Element does not exist!
+			// return *(T*)NULL;
+			// fill-in:
+			rowData[col] = 0;
+			iter = rowData.find(col);
+			assert(iter != rowData.end());
+		}
+		return iter->second;
+	}
+
+	//! Returns the element at (\c row, \c col). Elements from the upper-triagonal part are returned as well.
+	const T &GetAtFull(size_t row, size_t col) const {
+		return GetAt(row, col);
+	}
+
+	//! Returns the number of rows of the matrix
+	size_t GetNumRows() const { return m_rowData.size(); }
+
+	//! Returns the number of columns of the matrix
+	size_t GetNumCols() const { return m_numCols; }
+
+	//! Returns the number of non-zero entries. The values above the diagonal are not counted.
+	size_t GetNumNonZero() const {
+		size_t nnz = 0;
+		for(size_t i=0; i<m_rowData.size(); i++)
+		{
+			nnz += m_rowData[i].size();
+		}
+
+		return nnz;
+	}
+
+private:
+	size_t m_numCols;
+	vector<map<size_t, T> > m_rowData;
+
+	static T m_zero;
+};
+
+template<class T>
+T SparseDynamicRowMatrixT<T>::m_zero = 0;
+
+typedef SparseDynamicRowMatrixT<float> Matrixf;
+
+//=====================================================================================*/
 //! Diagonally preconditioned conjugate gradient solver
 template<class T>
 class SparseLinSolverPCGT
@@ -1002,7 +1128,7 @@ Vector3T<T> operator*(T const &s, Vector3T<T> const &v)
 //== TYPEDEFS =========================================================
 typedef Vector3T<float> Vector3f;
 typedef Vector3T<double> Vector3d;
-
+typedef Vector3T<int> Vector3i;
 
 
 
@@ -1275,7 +1401,7 @@ private:
 		if( fabs(d) <= eps )
 		{
 			// Need to make sure something gets written to \c M:
-			M.setValues(std::numeric_limits<Scalar>::quiet_NaN());
+			//M.setValues(std::numeric_limits<Scalar>::quiet_NaN());
 
 			return false;
 		}

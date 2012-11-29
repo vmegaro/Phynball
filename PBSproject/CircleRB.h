@@ -14,7 +14,7 @@ public:
 			 float m, float frictionCoeff, float gravityResistance,
 			 float elasticity,
 			 RungeKuttaODESolver *odeSolver);
-	RigidBody * clone();
+	CircleRB * clone();
 
 	RungeKuttaODESolver *solver;
 
