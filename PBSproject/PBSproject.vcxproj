@@ -64,25 +64,33 @@
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="CircleRB.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="DeformableObject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Pale.cpp" />
     <ClCompile Include="RectangleRB.cpp" />
+    <ClCompile Include="RectangleWall.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RungeKuttaODESolver.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="CircleRB.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DeformableObject.h" />
     <ClInclude Include="GLUT\glut.h" />
+    <ClInclude Include="Pale.h" />
     <ClInclude Include="RectangleRB.h" />
+    <ClInclude Include="RectangleWall.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="RungeKuttaODESolver.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="utilities.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

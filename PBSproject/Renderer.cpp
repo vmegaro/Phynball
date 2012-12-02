@@ -18,8 +18,9 @@
 
 #include <iostream>
 #include "Renderer.h"
+#include "Constants.h"
 
-#define MICROSECS_PER_FRAME  40000//25 frames per second
+#define MICROSECS_PER_FRAME  20000//50 frames per second
 using namespace std;
 
 Board *board;
@@ -108,6 +109,19 @@ void idle(){
 	glutPostRedisplay();
 }
 
+void updatePale(unsigned char key, int x, int y) {
+	switch (key) {
+	case 27:  // ESC
+		exit(0);
+	case 'x':
+		board->updatePaleDirection(kLeftPale, kPaleUpDir);
+		break;
+	case 'n':
+		board->updatePaleDirection(kRightPale, kPaleUpDir);
+		break;
+	}
+}
+
 
 Renderer::Renderer(int* argc, char** argv, Board *brd){
 	#if MACVERSION==1
@@ -134,6 +148,7 @@ Renderer::Renderer(int* argc, char** argv, Board *brd){
 	glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
+	//glutKeyboardFunc(updatePale);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

@@ -16,8 +16,6 @@ public:
 			 RungeKuttaODESolver *odeSolver);
 	CircleRB * clone();
 
-	RungeKuttaODESolver *solver;
-
 protected:
 	float r;
 	void updateVertices();

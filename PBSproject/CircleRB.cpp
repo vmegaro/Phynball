@@ -10,6 +10,8 @@ CircleRB::CircleRB(float xPosition, float yPosition,
 						 float elasticity,
 						 RungeKuttaODESolver *odeSolver) {
 
+							 r = radius;
+
 							 xPos = xPosition; yPos = yPosition;
 							 xVel = xVelocity; yVel = yVelocity;
 							 angularPos = angularPosition; angularVel = angularVelocity;
@@ -19,8 +21,6 @@ CircleRB::CircleRB(float xPosition, float yPosition,
 							 oneOverMass = 1.0f/mass; oneOverI = 1.0f/momentOfInertia;
 							 Tx = 0.0f; Ty = 0.0f; Rx = 0.0f; Ry = 0.0f;
 							 solver = odeSolver;
-
-							 r = radius;
 
 							 nVertices = nVert+1;
 							 vertices = vector<float>(nVertices*2,0.0f);

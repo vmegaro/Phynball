@@ -1,7 +1,6 @@
 #include "RectangleRB.h"
 #include <cmath>
-
-#define g 9.81f
+#include "Constants.h"
 
 enum VerticesPositions
 {
@@ -15,8 +14,6 @@ enum VerticesPositions
 	sey,
 	NUM_Vertices
 };
-
-float halfWidth, halfHeight;
 
 RectangleRB::RectangleRB(float xPosition, float yPosition,
 						 float xVelocity, float yVelocity,
@@ -58,12 +55,11 @@ RectangleRB * RectangleRB::clone() {
 		solver);
 }
 
-float eastVecX, eastVecY, northVecX, northVecY, relength;
 void RectangleRB::updateVertices() {
 	eastVecX = cos(angularPos)*halfWidth; // deltaX
 	eastVecY = sin(angularPos)*halfWidth; // deltaY
 
-	relength = sqrt(eastVecX*eastVecX+eastVecY*eastVecY)*halfHeight;
+	relength = halfHeight/sqrt(eastVecX*eastVecX+eastVecY*eastVecY);
 
 	northVecX = -eastVecY*relength;
 	northVecY = eastVecX*relength;

@@ -7,7 +7,7 @@ void RigidBody::setXAcc(const float &x, const float &v, float &a) {
 }
 
 void RigidBody::setYAcc(const float &x, const float &v, float &a){
-	a = (Ty - friction*yVel)*oneOverMass - gravityScale*g;
+	a = (Ty - friction*yVel)*oneOverMass - gravityScale*kg;
 }
 
 void RigidBody::setAngularAcc(const float &x, const float &v, float &a){
@@ -25,39 +25,58 @@ float nx,ny,r;
 float vabx, vaby;
 float rxa, rya, rxb, ryb;
 float jOverMass;
-void RigidBody::handleCollision(RigidBody *rb, const float &xCollision, const float &yCollision, const int &edgeIndex){
+void RigidBody::setCollisionResponse(Shape *collidingSh, const float &xCollision, const float &yCollision, const int &edgeIndex, Collision *collision){
+
+	RigidBody *collidingRb = (RigidBody *)collidingSh;
 	// Compute relative velocity
-	rxa = xCollision - rb->xPos;
-	rya = yCollision - rb->yPos;
+	rxa = xCollision - collidingRb->xPos;
+	rya = yCollision - collidingRb->yPos;
 	rxb = xCollision - xPos;
 	ryb = yCollision - yPos;
 
-	vabx = rb->xVel - (rb->angularVel*rya) - (xVel - (angularVel*ryb));
-	vaby = rb->yVel + (rb->angularVel*rxa) - (yVel + (angularVel*rxb));
+	vabx = collidingRb->xVel - (collidingRb->angularVel*rya) - (xVel - (angularVel*ryb));
+	vaby = collidingRb->yVel + (collidingRb->angularVel*rxa) - (yVel + (angularVel*rxb));
 
 	// compute unit normal: nx = dy, ny = -dx
-	nx = vertices.at((edgeIndex+1)*2+1)-vertices.at((edgeIndex)*2+1);
-	ny = -vertices.at((edgeIndex+1)*2)-vertices.at((edgeIndex)*2);
+	nx = vertices.at((edgeIndex+1)%nVertices*2+1)-vertices.at((edgeIndex)*2+1);
+	ny = -(vertices.at((edgeIndex+1)%nVertices*2)-vertices.at((edgeIndex)*2));
 	r = sqrt(nx*nx+ny*ny);
 	nx /= r;
 	ny /= r;
 
+	// Not an actual collision!!
+	if(vabx*nx+vaby*ny > 0.0f) return;
+
 	// Compute j (impulse coeff)
 	impulseCoeff = -((1.0f+e)*(vabx*nx+vaby*ny))/
-		((rb->oneOverMass)+oneOverMass+(rxa*ny-nx*rya)*(rxa*ny-nx*rya)*(rb->oneOverI)+(rxb*ny-nx*ryb)*(rxb*ny-nx*ryb)*oneOverI);
+		((collidingRb->oneOverMass)+oneOverMass+(rxa*ny-nx*rya)*(rxa*ny-nx*rya)*(collidingRb->oneOverI)+(rxb*ny-nx*ryb)*(rxb*ny-nx*ryb)*oneOverI);
 
-	// Compute delta velocities
-	jOverMass = impulseCoeff*oneOverMass;
-	deltaVx = -jOverMass*nx;
-	deltaVy = -jOverMass*ny;
-	deltaVa = -(rxb*ny-nx*ryb)*impulseCoeff*oneOverI;
-
-	// Send inverse impulse to colliding object
-	rb->handleResponseImpulse(-deltaVx,-deltaVy,-deltaVa);
+	// Set up collision object
+	collision->shapeB = this;
+	collision->shapeA = collidingRb;
+	collision->nx = nx;
+	collision->ny = ny;
+	collision->rxa = rxa;
+	collision->rya = rya;
+	collision->rxb = rxb;
+	collision->ryb = ryb;
+	collision->j = impulseCoeff;
+	collision->resolved = 0;
 }
 
-void RigidBody::handleResponseImpulse(const float &dvx, const float &dvy, const float &dva){
-	xVel += dvx;
-	yVel += dvy;
-	angularVel += dva;
+void RigidBody::handleResponseImpulse(const float &nx, const float &ny,
+										const float &rx, const float &ry,
+										const float &impulseCoeff){
+											jOverMass = impulseCoeff*oneOverMass;
+											xVel += jOverMass*nx;
+											yVel += jOverMass*ny;
+											angularVel += (rx*ny-nx*ry)*impulseCoeff*oneOverI;
+}
+
+void RigidBody::copyTo(Shape *newShape) {
+	RigidBody *newRb = (RigidBody *)newShape;
+	newRb->xPos = xPos;
+	newRb->yPos = yPos;
+	newRb->angularPos = angularPos;
+	//updateVertices();
 }

@@ -61,7 +61,6 @@ vector<int> Contour_Rectangle(){
 	return contour;
 }
 
-
 class DeformableObject : public Shape {
 public :
 	DeformableObject(vector<Vector2f> &_vlist,vector<Vector3i> &_flist, vector<int> &_contour, float _E,float _rho, float _nu, float _alpha, float _beta);
@@ -85,3 +84,4 @@ protected :
 };
 
 #endif /* DEFORMABLEOBJECT_H_ */
+

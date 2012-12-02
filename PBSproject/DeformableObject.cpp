@@ -10,7 +10,7 @@ Vector2f ComputeDerivatives(Vector2f x0,Vector2f x1,Vector2f x2){
 }
 
 DeformableObject::DeformableObject(vector<Vector2f> &_vlist,vector<Vector3i> &_flist, vector<int> &_contour, float _E,float _rho, float _nu, float _alpha, float _beta){
-	int N = vlist.size();
+	int N=vlist.size();
 	int n = _contour.size();
 	vlist = _vlist;
 	flist = _flist;
@@ -31,9 +31,9 @@ DeformableObject::DeformableObject(vector<Vector2f> &_vlist,vector<Vector3i> &_f
 	}
 	K.ClearResize(2*N);
 	ComputeStiffnessMatrixandMass();
-	color[0] = 0.8f;
-	color[1] = 0.6f;
-	color[2] = 0.1f;
+	 color[0] = 0.8;
+	 color[1] = 0.6;
+	 color[2] = 0.1;
 }
 
 void DeformableObject::ComputeStiffnessMatrixandMass(){
@@ -56,15 +56,15 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 		//add K00;
 		K(2*ind0,2*ind0)+=E*area*((1-nu)*dN0[0]*dN0[0]+(1-2*nu)*dN0[1]*dN0[1])/((1+nu)*(1-2*nu));
 		K(2*ind0+1,2*ind0+1)+=E*area*((1-nu)*dN0[1]*dN0[1]+(1-2*nu)*dN0[0]*dN0[0])/((1+nu)*(1-2*nu));
-		K(2*ind0+1,2*ind0)+=E*area*dN0[0]*dN0[1]*(1-nu)/((1+nu)*(1-2*nu));;
+		K(2*ind0+1,2*ind0)+=E*area*dN0[0]*dN0[1]*(1-nu)/((1+nu)*(1-2*nu));
 		//add K11;
 		K(2*ind1,2*ind1)+=E*area*((1-nu)*dN1[0]*dN1[0]+(1-2*nu)*dN1[1]*dN1[1])/((1+nu)*(1-2*nu));
 		K(2*ind1+1,2*ind1+1)+=E*area*((1-nu)*dN1[1]*dN1[1]+(1-2*nu)*dN1[0]*dN1[0])/((1+nu)*(1-2*nu));
-		K(2*ind1+1,2*ind1)+=E*area*dN1[0]*dN1[1]*(1-nu)/((1+nu)*(1-2*nu));;
+		K(2*ind1+1,2*ind1)+=E*area*dN1[0]*dN1[1]*(1-nu)/((1+nu)*(1-2*nu));
 		//add K22;
 		K(2*ind2,2*ind2)+=E*area*((1-nu)*dN2[0]*dN2[0]+(1-2*nu)*dN2[1]*dN2[1])/((1+nu)*(1-2*nu));
 		K(2*ind2+1,2*ind2+1)+=E*area*((1-nu)*dN2[1]*dN2[1]+(1-2*nu)*dN2[0]*dN2[0])/((1+nu)*(1-2*nu));
-		K(2*ind2+1,2*ind2)+=E*area*dN2[0]*dN2[1]*(1-nu)/((1+nu)*(1-2*nu));;
+		K(2*ind2+1,2*ind2)+=E*area*dN2[0]*dN2[1]*(1-nu)/((1+nu)*(1-2*nu));
 		//add K01 or K10;
 		if(ind0>ind1){
 			K(2*ind0,2*ind1)+=E*area*((1-nu)*dN0[0]*dN1[0]+(1-2*nu)*dN0[1]*dN1[1])/((1+nu)*(1-2*nu));

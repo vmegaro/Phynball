@@ -10,8 +10,11 @@ public:
 	virtual void setYAcc(const float &x, const float &v, float &a);
 	virtual void setAngularAcc(const float &x, const float &v, float &a);
 	virtual void update(Shape *newSh);
-	virtual void handleCollision(RigidBody *rb, const float &xCollision, const float &yCollision, const int &edgeIndex);
-	virtual void handleResponseImpulse(const float &dvx, const float &dvy, const float &dva);
+	virtual void setCollisionResponse(Shape *collidingSh, const float &xCollision, const float &yCollision, const int &edgeIndex, Collision *collision);
+	virtual void handleResponseImpulse(const float &nx, const float &ny,
+										const float &rx, const float &ry,
+										const float &impulseCoeff);
+	virtual void copyTo(Shape *newShape);
 	virtual RigidBody * clone() {return 0;};
 
 	float xPos,yPos,angularPos;

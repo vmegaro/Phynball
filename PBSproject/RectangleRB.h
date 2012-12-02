@@ -19,8 +19,10 @@ public:
 protected:
 
 	float width,heigth;
-
+	float halfWidth, halfHeight;
 	void updateVertices();
+
+	float eastVecX, eastVecY, northVecX, northVecY, relength;
 };
 
 #endif

@@ -1,4 +1,8 @@
 #include "Board.h"
+#include <iostream>
+#include "Constants.h"
+#include <windows.h>
+#include <fstream>
 
 bool PolygonIntersectionTest(const vector<float> &p,const vector<float> &q, vector<int> &resp, vector<int> &resq){
 	int m=p.size()/2;
@@ -80,16 +84,85 @@ void Board::addShape(Shape *s) {
 	shapeVec2.push_back(s->clone());
 }
 
-void Board::update() {
-	// Update position and velocities
-	vector<Shape *>::iterator it1 = shapes->begin(),
-								  it2 = newShapes->begin();
-	for(;it1 != shapes->end();++it1,++it2){
-		(*it1)->update(*it2);
-	}
+void Board::addLeftPale(Shape *p) {
+	shapeVec1.push_back(p);
+	shapeVec2.push_back(p);
+	Pale *lp = (Pale *)p;
+	leftPale = lp;
+}
 
-	// Swap buffers
-	aux = shapes;
-	shapes = newShapes;
-	newShapes = aux;
+void Board::addRightPale(Shape *p) {
+	shapeVec1.push_back(p);
+	shapeVec2.push_back(p);
+	Pale *rp = (Pale *)p;
+	rightPale = rp;
+}
+
+void Board::updatePaleDirection(int paleType, int paleDir) {
+	if(kPaleDownDir == paleDir) {
+		if(paleType == kLeftPale) leftPale->setGoDown();
+		else rightPale->setGoDown();
+	}else {
+		if(paleType == kLeftPale) leftPale->setGoUp();
+		else rightPale->setGoUp();
+	}
+}
+
+int collisionInd;
+float cdvx, cdvy, cdva, cimp;
+void Board::update() {
+
+	// Iteration
+	for(int t = 0; t < intermediateSteps; t++) {
+		// Update position and velocities
+		vector<Shape *>::iterator it1 = shapes->begin(),
+									  it2 = newShapes->begin();
+		for(;it1 != shapes->end();++it1,++it2){
+			(*it1)->update(*it2); // timestep integration
+		}
+
+		collisions.clear();
+
+		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
+		vector<int> resp, resq;
+		for(sit1 = shapes->begin() ,nsit1 = newShapes->begin(), collisionInd = 0;nsit1 != newShapes->end();++sit1, ++nsit1, collisionInd++) {
+			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != newShapes->end();++sit2, ++nsit2) {
+				if(PolygonIntersectionTest((*nsit1)->vertices,(*nsit2)->vertices,resp,resq)) {
+					Collision *collision = new Collision();
+					if(resp.size() == 2) {
+						(*nsit1)->setCollisionResponse(
+													*nsit2,
+													(*nsit2)->vertices.at(resq.at(0)*2),
+													(*nsit2)->vertices.at(resq.at(0)*2+1),
+													resp.at(0),
+													collision);
+					}else {
+						(*nsit2)->setCollisionResponse(
+													*nsit1,
+													(*nsit1)->vertices.at(resp.at(0)*2),
+													(*nsit1)->vertices.at(resp.at(0)*2+1),
+													resq.at(0),
+													collision);
+					}
+					collisions.push_back(collision);
+					resp.clear();resq.clear();
+				}
+			}
+		}
+
+		// Update using impulses
+		vector<Collision *>::iterator colIt = collisions.begin();
+		for(;colIt != collisions.end();++colIt) {
+			(*colIt)->resolve();
+		}
+
+		// Swap buffers
+		aux = shapes;
+		shapes = newShapes;
+		newShapes = aux;
+	}
+	if(GetAsyncKeyState(VkKeyScan('x')) <= keyPress) leftPale->setGoUp();
+	else leftPale->setGoDown();
+	if(GetAsyncKeyState(VkKeyScan('n')) <= keyPress) rightPale->setGoUp();
+	else rightPale->setGoDown();
 }
