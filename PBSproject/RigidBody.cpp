@@ -43,6 +43,10 @@ void RigidBody::setCollisionResponse(Shape *collidingSh, const float &xCollision
 	r = sqrt(nx*nx+ny*ny);
 	nx /= r;
 	ny /= r;
+	if(nx*(xCollision-vertices.at(edgeIndex*2))+ny*(yCollision-vertices.at(edgeIndex*2+1))>0){
+		nx=-nx;
+		ny=-ny;
+	}
 
 	// Not an actual collision!!
 	if(vabx*nx+vaby*ny > 0.0f) return;
