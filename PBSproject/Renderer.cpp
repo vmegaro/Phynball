@@ -60,8 +60,30 @@ void display(){
 		//update
 		board->update();
 		
-		//draw
-		for(vector<Shape *>::iterator it= board->shapes->begin();it != board->shapes->end();it++){
+		//draw dynamic objects
+		for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
+			glColor3dv((*it)->color);
+
+			glBegin(GL_POLYGON);
+			for(int k = 0; k < (*it)->nVertices; k++){
+				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
+			}
+			glEnd();
+
+			glLineWidth(1);
+			glColor3d(0,0,0);
+
+			glDepthFunc(GL_ALWAYS);
+			glBegin(GL_LINE_LOOP);
+			for(int k = 0; k < (*it)->nVertices; k++){
+				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
+			}
+			glEnd();
+			glDepthFunc(GL_EQUAL);
+		}
+
+		//draw walls
+		for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
 			glColor3dv((*it)->color);
 
 			glBegin(GL_POLYGON);

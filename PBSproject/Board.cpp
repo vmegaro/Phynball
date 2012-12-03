@@ -98,6 +98,7 @@ bool PolygonIntersectionTest(const vector<float> &p,const vector<float> &q, vect
 Board::Board(){
 	shapes = &shapeVec1;
 	newShapes = &shapeVec2;
+	walls = &wallsVec;
 }
 
 Board::~Board(){
@@ -106,6 +107,13 @@ Board::~Board(){
 void Board::addShape(Shape *s) {
 	shapeVec1.push_back(s);
 	shapeVec2.push_back(s->clone());
+}
+
+void Board::addWall(Shape *w) {
+	/*shapeVec1.push_back(w);
+	shapeVec2.push_back(w);*/
+	Wall *wall = (Wall *)w;
+	wallsVec.push_back(wall);
 }
 
 void Board::addLeftPale(Shape *p) {
@@ -147,8 +155,40 @@ void Board::update() {
 
 		collisions.clear();
 
+		// Collisions
+		//+++++++++++
+
 		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
+		vector<Wall *>::iterator wIt;
 		vector<int> resp, resq;
+
+		//Wall collisions
+		for(wIt = walls->begin(); wIt != walls->end();++wIt) {
+			for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
+				if(PolygonIntersectionTest((*nsit1)->vertices,(*wIt)->vertices,resp,resq)) {
+					Collision *collision = new Collision();
+					if(resp.size() == 2) {
+						(*nsit1)->setCollisionResponse(
+													*wIt,
+													(*wIt)->vertices.at(resq.at(0)*2),
+													(*wIt)->vertices.at(resq.at(0)*2+1),
+													resp.at(0),
+													collision);
+					}else {
+						(*wIt)->setCollisionResponse(
+													*nsit1,
+													(*nsit1)->vertices.at(resp.at(0)*2),
+													(*nsit1)->vertices.at(resp.at(0)*2+1),
+													resq.at(0),
+													collision);
+					}
+					collisions.push_back(collision);
+					resp.clear();resq.clear();
+				}
+			}
+		}
+
+		// Dynamic objects collisions
 		for(sit1 = shapes->begin() ,nsit1 = newShapes->begin(), collisionInd = 0;nsit1 != newShapes->end();++sit1, ++nsit1, collisionInd++) {
 			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != newShapes->end();++sit2, ++nsit2) {
 				if(PolygonIntersectionTest((*nsit1)->vertices,(*nsit2)->vertices,resp,resq)) {

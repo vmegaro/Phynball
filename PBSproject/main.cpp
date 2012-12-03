@@ -120,22 +120,22 @@ int main(int argc, char** argv)
 				0.0f, -0.9f,
 				2.0f, 0.2f,
 				0.0f,
-				0.8f);
+				0.5f);
 	Shape *recW2 = new RectangleWall(
 				0.0f, 0.9f,
 				2.0f, 0.2f,
 				0.0f,
-				0.8f);
+				0.5f);
 	Shape *recW3 = new RectangleWall(
 				-0.9f, 0.0f,
 				0.2f, 1.5f,
 				0.0f,
-				0.8f);
+				0.5f);
 	Shape *recW4 = new RectangleWall(
 				0.9f, 0.0f,
 				0.2f, 1.5f,
 				0.0f,
-				0.8f);
+				0.5f);
 	Shape *paleL = new Pale(kLeftPale,solver);
 	Shape *paleR = new Pale(kRightPale,solver);
 
@@ -153,10 +153,10 @@ int main(int argc, char** argv)
 	board->addShape(cir3);
 	board->addShape(cir4);
 	//board ->addShape(w);
-	board->addShape(recW1);
-	board->addShape(recW2);
-	board->addShape(recW3);
-	board->addShape(recW4);
+	board->addWall(recW1);
+	board->addWall(recW2);
+	board->addWall(recW3);
+	board->addWall(recW4);
 	board->addLeftPale(paleL);
 	board->addRightPale(paleR);
 

@@ -3,6 +3,7 @@
 
 #include "Shape.h"
 #include "Pale.h"
+#include "Wall.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ public:
 	~Board(void);
 
 	void addShape(Shape *s);
+	void addWall(Shape *w);
 	void addLeftPale(Shape *p);
 	void addRightPale(Shape *p);
 
@@ -22,6 +24,7 @@ public:
 
 	vector<Shape *> *shapes;
 	vector<Shape *> *newShapes;
+	vector<Wall *> *walls;
 
 protected:
 
@@ -34,6 +37,7 @@ protected:
 	Pale *rightPale;
 
 	vector<Collision *> collisions;
+	vector<Wall *> wallsVec;
 };
 
 #endif

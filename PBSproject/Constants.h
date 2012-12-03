@@ -30,6 +30,11 @@ enum paleTypes {
 #define kPaleDownDir 0
 #define kPaleUpDir 1
 
+#define maxRigidVel 10.0f
+#define maxRigidAngularVel 50.0f
+#define minRigidVel 0.0f
+#define minRigidAngularVel 0.0f
+
 #define kg 9.81f
 
 #endif

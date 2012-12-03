@@ -1,8 +1,15 @@
 #include "RungeKuttaODESolver.h"
 #include "RigidBody.h"
+#include "Constants.h"
+#include <math.h>
 #include <iostream>
 
 using namespace std;
+
+float sign(float f) {
+	return (float*)(f > 0) - (float*)(f < 0);
+}
+
 
 RungeKuttaODESolver::RungeKuttaODESolver(float deltaT) {
 	h = deltaT;
@@ -13,7 +20,7 @@ RungeKuttaODESolver::RungeKuttaODESolver(float deltaT) {
 void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *rb, RigidBody *newRb) {
 
 	//X position and velocity
-	//cout << rb->yPos << endl;
+	//cout << rb->yVel << endl;
 
 	kx1 = rb->xVel;
 	rb->setXAcc(rb->xPos,rb->xVel,kv1);
@@ -25,7 +32,11 @@ void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *r
 	rb->setXAcc(rb->xPos+kx3*h,kx4,kv4);
 
 	newRb->xPos = rb->xPos + hSixth*(kx1+2.0f*kx2+2.0f*kx3+kx4);
-	newRb->xVel = rb->xVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	finalValue = rb->xVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	float s = sign(finalValue);
+	if(s*finalValue > maxRigidVel) finalValue = s*maxRigidVel;
+	else if(s*finalValue < minRigidVel) finalValue = 0.0f;
+	newRb->xVel = finalValue;
 
 	// Y position and velocity
 
@@ -39,7 +50,11 @@ void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *r
 	rb->setYAcc(rb->yPos+kx3*h,kx4,kv4);
 
 	newRb->yPos = rb->yPos + hSixth*(kx1+2.0f*kx2+2.0f*kx3+kx4);
-	newRb->yVel = rb->yVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	finalValue = rb->yVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	s = sign(finalValue);
+	if(s*finalValue > maxRigidVel) finalValue = s*maxRigidVel;
+	else if(s*finalValue < minRigidVel) finalValue = 0.0f;
+	newRb->yVel = finalValue;
 
 	// Angular position and velocity
 	kx1 = rb->angularVel;
@@ -52,7 +67,11 @@ void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *r
 	rb->setAngularAcc(rb->angularPos+kx3*h,kx4,kv4);
 
 	newRb->angularPos = rb->angularPos + hSixth*(kx1+2.0f*kx2+2.0f*kx3+kx4);
-	newRb->angularVel = rb->angularVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	finalValue = rb->angularVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	s = sign(finalValue);
+	if(s*finalValue > maxRigidAngularVel) finalValue = s*maxRigidAngularVel;
+	else if(s*finalValue < minRigidAngularVel) finalValue = 0.0f;
+	newRb->angularVel = finalValue;
 }
 
 void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocitiesWithCustomDt(RigidBody *rb, RigidBody *newRb, float customDt) {

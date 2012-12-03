@@ -14,6 +14,8 @@ private:
 	float kx1,kx2,kx3,kx4;
 	float kv1,kv2,kv3,kv4;
 
+	float finalValue;
+
 };
 
 #endif
