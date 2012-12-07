@@ -37,8 +37,8 @@ Collision::Collision(Shape *_shapeA, Shape *_shapeB,
 
 void Collision::resolve() {
 	if(!resolved) {
-		shapeA->handleResponseImpulse(nx,ny,rxa,rya,j);
-		shapeB->handleResponseImpulse(nx,ny,rxb,ryb,-j);
+		shapeA->handleResponseImpulse(nx,ny,rxa,rya,cva,j);
+		shapeB->handleResponseImpulse(nx,ny,rxb,ryb,cvb,-j);
 		resolved = 1;
 	}
 }
