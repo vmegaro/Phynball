@@ -1,5 +1,8 @@
 #ifndef C_Collision
 #define C_Collision
+
+#include <vector>
+
 class Shape;
 
 class Collision {
@@ -16,7 +19,9 @@ public:
 	Shape *shapeB;
 	float nx,ny;
 	float rxa, rya;
+	std::vector<int> cva;
 	float rxb, ryb;
+	std::vector<int> cvb;
 	float j;
 	bool resolved;
 
