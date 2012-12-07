@@ -112,7 +112,6 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 	}
 	oneOverMass = 1.0f/totmass;
 	G*=oneOverMass;
-	length=(vlist[0]-G).length();
 }
 
 void DeformableObject::update(Shape* newSh){
