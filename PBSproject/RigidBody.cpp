@@ -1,4 +1,5 @@
 #include "RigidBody.h"
+#include "DeformableObject.h"
 #include "Constants.h"
 #include <cmath>
 
@@ -25,57 +26,96 @@ float nx,ny,r;
 float vabx, vaby;
 float rxa, rya, rxb, ryb;
 float jOverMass;
-void RigidBody::setCollisionResponse(Shape *collidingSh, const float &xCollision, const float &yCollision, const int &edgeIndex, Collision *collision){
+void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, const int &edgeIndex, Collision *collision){
+	if(collidingSh->nature()==1){
+		RigidBody *collidingRb = (RigidBody *)collidingSh;
+		xCollision=collidingRb->vertices.at(pointIndex*2);
+		yCollision=collidingRb->vertices.at(pointIndex*2+1);
+		// Compute relative velocity
+		rxa = xCollision - collidingRb->xPos;
+		rya = yCollision - collidingRb->yPos;
+		rxb = xCollision - xPos;
+		ryb = yCollision - yPos;
 
-	RigidBody *collidingRb = (RigidBody *)collidingSh;
-	// Compute relative velocity
-	rxa = xCollision - collidingRb->xPos;
-	rya = yCollision - collidingRb->yPos;
-	rxb = xCollision - xPos;
-	ryb = yCollision - yPos;
+		vabx = collidingRb->xVel - (collidingRb->angularVel*rya) - (xVel - (angularVel*ryb));
+		vaby = collidingRb->yVel + (collidingRb->angularVel*rxa) - (yVel + (angularVel*rxb));
 
-	vabx = collidingRb->xVel - (collidingRb->angularVel*rya) - (xVel - (angularVel*ryb));
-	vaby = collidingRb->yVel + (collidingRb->angularVel*rxa) - (yVel + (angularVel*rxb));
+		// compute unit normal: nx = dy, ny = -dx
+		nx = vertices.at((edgeIndex+1)%nVertices*2+1)-vertices.at((edgeIndex)*2+1);
+		ny = -(vertices.at((edgeIndex+1)%nVertices*2)-vertices.at((edgeIndex)*2));
+		r = sqrt(nx*nx+ny*ny);
+		nx /= r;
+		ny /= r;
+		if(nx*(xCollision-vertices.at(edgeIndex*2))+ny*(yCollision-vertices.at(edgeIndex*2+1))>0){
+			nx=-nx;
+			ny=-ny;
+		}
 
-	// compute unit normal: nx = dy, ny = -dx
-	nx = vertices.at((edgeIndex+1)%nVertices*2+1)-vertices.at((edgeIndex)*2+1);
-	ny = -(vertices.at((edgeIndex+1)%nVertices*2)-vertices.at((edgeIndex)*2));
-	r = sqrt(nx*nx+ny*ny);
-	nx /= r;
-	ny /= r;
-	if(nx*(xCollision-vertices.at(edgeIndex*2))+ny*(yCollision-vertices.at(edgeIndex*2+1))>0){
-		nx=-nx;
-		ny=-ny;
+		// Not an actual collision!!
+		if(vabx*nx+vaby*ny > 0.0f) return;
+
+		// Compute j (impulse coeff)
+		impulseCoeff = -((1.0f+e)*(vabx*nx+vaby*ny))/
+			((collidingRb->oneOverMass)+oneOverMass+(rxa*ny-nx*rya)*(rxa*ny-nx*rya)*(collidingRb->oneOverI)+(rxb*ny-nx*ryb)*(rxb*ny-nx*ryb)*oneOverI);
+
+		// Set up collision object
+		collision->shapeB = this;
+		collision->shapeA = collidingRb;
+		collision->nx = nx;
+		collision->ny = ny;
+		collision->rxa = rxa;
+		collision->rya = rya;
+		collision->rxb = rxb;
+		collision->ryb = ryb;
+		collision->j = impulseCoeff;
+		collision->resolved = 0;
+	}else{
+		DeformableObject *collidingDo = (DeformableObject *) collidingSh;
+		xCollision=collidingDo->vertices.at(pointIndex*2);
+		yCollision=collidingDo->vertices.at(pointIndex*2+1);
+		rxa = xCollision - collidingDo->G[0];
+		rya = yCollision - collidingDo->G[1];
+		rxb = xCollision - xPos;
+		ryb = yCollision - yPos;
+		//Compute velocity
+		vabx=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[0]-(xVel-angularVel*ryb);
+		vaby=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[1]-(yVel+angularVel*rxb);
+		// compute unit normal: nx = dy, ny = -dx
+		nx = vertices.at((edgeIndex+1)%nVertices*2+1)-vertices.at((edgeIndex)*2+1);
+		ny = -(vertices.at((edgeIndex+1)%nVertices*2)-vertices.at((edgeIndex)*2));
+		r = sqrt(nx*nx+ny*ny);
+		nx /= r;
+		ny /= r;
+		if(nx*(xCollision-vertices.at(edgeIndex*2))+ny*(yCollision-vertices.at(edgeIndex*2+1))>0){
+			nx=-nx;
+			ny=-ny;
+		}
+		if(vabx*nx+vaby*ny > 0.0f) return;
+		// Compute j (impulse coeff)
+		impulseCoeff = -((1.0f+(e+collidingDo->e)/2.0f)*(vabx*nx+vaby*ny))/
+			((collidingDo->oneOverMass)+oneOverMass+(rxb*ny-nx*ryb)*(rxb*ny-nx*ryb)*oneOverI);
+		collision->shapeB = this;
+		collision->shapeA = collidingDo;
+		collision->nx = nx;
+		collision->ny = ny;
+		collision->rxa = rxa;
+		collision->rya = rya;
+		collision->cva.push_back(collidingDo->contour.at(pointIndex));
+		collision->rxb = rxb;
+		collision->ryb = ryb;
+		collision->j = impulseCoeff;
+		collision->resolved = 0;
 	}
-
-	// Not an actual collision!!
-	if(vabx*nx+vaby*ny > 0.0f) return;
-
-	// Compute j (impulse coeff)
-	impulseCoeff = -((1.0f+e)*(vabx*nx+vaby*ny))/
-		((collidingRb->oneOverMass)+oneOverMass+(rxa*ny-nx*rya)*(rxa*ny-nx*rya)*(collidingRb->oneOverI)+(rxb*ny-nx*ryb)*(rxb*ny-nx*ryb)*oneOverI);
-
-	// Set up collision object
-	collision->shapeB = this;
-	collision->shapeA = collidingRb;
-	collision->nx = nx;
-	collision->ny = ny;
-	collision->rxa = rxa;
-	collision->rya = rya;
-	collision->rxb = rxb;
-	collision->ryb = ryb;
-	collision->j = impulseCoeff;
-	collision->resolved = 0;
 }
 
-void RigidBody::handleResponseImpulse(const float &nx, const float &ny,
-										const float &rx, const float &ry,
-										const float &impulseCoeff){
-											jOverMass = impulseCoeff*oneOverMass;
-											xVel += jOverMass*nx;
-											yVel += jOverMass*ny;
-											angularVel += (rx*ny-nx*ry)*impulseCoeff*oneOverI;
+void RigidBody::handleResponseImpulse(const float &nx, const float &ny, const float &rx, const float &ry, 
+					const std::vector<int> &cv, const float &impulseCoeff){
+	jOverMass = impulseCoeff*oneOverMass;
+	xVel += jOverMass*nx;
+	yVel += jOverMass*ny;
+	angularVel += (rx*ny-nx*ry)*impulseCoeff*oneOverI;
 }
+
 
 void RigidBody::copyTo(Shape *newShape) {
 	RigidBody *newRb = (RigidBody *)newShape;
