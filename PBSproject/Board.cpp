@@ -170,15 +170,13 @@ void Board::update() {
 					if(resp.size() == 2) {
 						(*nsit1)->setCollisionResponse(
 													*wIt,
-													(*wIt)->vertices.at(resq.at(0)*2),
-													(*wIt)->vertices.at(resq.at(0)*2+1),
+													resq.at(0),
 													resp.at(0),
 													collision);
 					}else {
 						(*wIt)->setCollisionResponse(
 													*nsit1,
-													(*nsit1)->vertices.at(resp.at(0)*2),
-													(*nsit1)->vertices.at(resp.at(0)*2+1),
+													resp.at(0),
 													resq.at(0),
 													collision);
 					}
@@ -196,15 +194,13 @@ void Board::update() {
 					if(resp.size() == 2) {
 						(*nsit1)->setCollisionResponse(
 													*nsit2,
-													(*nsit2)->vertices.at(resq.at(0)*2),
-													(*nsit2)->vertices.at(resq.at(0)*2+1),
+													resq.at(0),
 													resp.at(0),
 													collision);
 					}else {
 						(*nsit2)->setCollisionResponse(
 													*nsit1,
-													(*nsit1)->vertices.at(resp.at(0)*2),
-													(*nsit1)->vertices.at(resp.at(0)*2+1),
+													resp.at(0),
 													resq.at(0),
 													collision);
 					}
