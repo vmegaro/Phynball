@@ -26,6 +26,7 @@ float nx,ny,r;
 float vabx, vaby;
 float rxa, rya, rxb, ryb;
 float jOverMass;
+float xCollision, yCollision;
 void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, const int &edgeIndex, Collision *collision){
 	if(collidingSh->nature()==1){
 		RigidBody *collidingRb = (RigidBody *)collidingSh;
