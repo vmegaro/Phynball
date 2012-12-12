@@ -79,8 +79,8 @@ void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, 
 		rxb = xCollision - xPos;
 		ryb = yCollision - yPos;
 		//Compute velocity
-		vabx=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[0]-(xVel-angularVel*ryb);
-		vaby=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[1]-(yVel+angularVel*rxb);
+		vabx=collidingDo->velocity(collidingDo->contour.at(pointIndex)*2)-(xVel-angularVel*ryb);
+		vaby=collidingDo->velocity(collidingDo->contour.at(pointIndex)*2+1)-(yVel+angularVel*rxb);
 		// compute unit normal: nx = dy, ny = -dx
 		nx = vertices.at((edgeIndex+1)%nVertices*2+1)-vertices.at((edgeIndex)*2+1);
 		ny = -(vertices.at((edgeIndex+1)%nVertices*2)-vertices.at((edgeIndex)*2));
