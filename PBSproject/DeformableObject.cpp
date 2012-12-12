@@ -1,24 +1,27 @@
 #include <cmath>
 #include "DeformableObject.h"
+#include <cmath>
+#include "DeformableObject.h"
 #include "RigidBody.h"
 #include "Constants.h"
 
-Vector2f ComputeDerivatives(Vector2f x0,Vector2f x1,Vector2f x2){
-	Vector2f grad;
+void ComputeDerivatives(float* x0,float* x1,float* x2,float* grad){
 	grad[0]=(x2[1]-x1[1])/((x1[0]-x0[0])*(x2[1]-x0[1])-(x1[1]-x0[1])*(x2[0]-x0[0]));
 	grad[1]=(x1[0]-x2[0])/((x1[0]-x0[0])*(x2[1]-x0[1])-(x1[1]-x0[1])*(x2[0]-x0[0]));
-	return grad;
 }
 
-DeformableObject::DeformableObject(vector<Vector2f> _vlist,vector<Vector3i> _flist, vector<int> _contour, float _E,float _rho, float _nu, float _alpha, float _beta,float _e){
-	int N=_vlist.size();
+DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vector<int> _contour, float _E,float _rho, float _nu, float _alpha, float _beta,float _e){
+	int N=_vlist.size()/2;
 	int n = _contour.size();
+	float dt=timeStep;
 	vlist = _vlist;
 	flist = _flist;
-	force.resize(N);
-	u.resize(N);
-	previous_u.resize(N);
-	velocity.resize(N);
+	force.resize(2*N);
+	force.setZero();
+	u.resize(2*N);
+	u.setZero();
+	velocity.resize(2*N);
+	velocity.setZero();
 	mass.resize(N);
 	E = _E;
 	rho = _rho;
@@ -29,37 +32,51 @@ DeformableObject::DeformableObject(vector<Vector2f> _vlist,vector<Vector3i> _fli
 	e=_e;
 	contour=_contour;
 	for(int i=0; i<n; i++){
-		vertices.push_back(vlist[_contour[i]][0]);
-		vertices.push_back(vlist[_contour[i]][1]);
+		vertices.push_back(vlist[2*_contour[i]]);
+		vertices.push_back(vlist[2*_contour[i]+1]);
 	}
-	K.ClearResize(2*N);
+	K.resize(2*N,2*N);
+	K.setZero();
 	ComputeStiffnessMatrixandMass();
-	 color[0] = 0.8;
-	 color[1] = 0.6;
-	 color[2] = 0.1;
+	color[0] = 0.8;
+	color[1] = 0.6;
+	color[2] = 0.1;
+	MatrixXf I;
+	I.resize(2*N,2*N);
+	I.setIdentity();
+	revMass.resize(2*N,2*N);
+	revMass.setZero();
+	for(int i=0;i<N;i++){
+		revMass(2*i,2*i)=1/mass[i];
+		revMass(2*i+1,2*i+1)=revMass(2*i,2*i);
+	}
+	Eigen::ColPivHouseholderQR<MatrixXf> _solver((1+alpha*dt)*I+dt*(beta+dt)*revMass*K);
+	solver=_solver;
 }
 
 void DeformableObject::ComputeStiffnessMatrixandMass(){
-	int numf=flist.size();
+	int numf=flist.size()/3;
 	int i;
 	float totmass=0.0f;
 	for(i=0;i<numf;i++){
-		int ind0=flist[i][0];
-		int ind1=flist[i][1];
-		int ind2=flist[i][2];
-		Vector2f x0=vlist[ind0];
-		Vector2f x1=vlist[ind1];
-		Vector2f x2=vlist[ind2];
-		Vector2f dN0=ComputeDerivatives(x0,x1,x2);
-		Vector2f dN1=ComputeDerivatives(x1,x2,x0);
-		Vector2f dN2=ComputeDerivatives(x2,x0,x1);
+		int ind0=flist[3*i];
+		int ind1=flist[3*i+1];
+		int ind2=flist[3*i+2];
+		float x0 [2]= {vlist[2*ind0],vlist[2*ind0+1]};
+		float x1 [2]= {vlist[2*ind1],vlist[2*ind1+1]};
+		float x2 [2]= {vlist[2*ind2],vlist[2*ind2+1]};
+		float dN0 [2];
+		ComputeDerivatives(x0,x1,x2,dN0);
+		float dN1 [2];
+		ComputeDerivatives(x1,x2,x0,dN1);
+		float dN2 [2];
+		ComputeDerivatives(x2,x0,x1,dN2);
 		float area=abs(((x0[0]-x1[0])*(x0[1]-x2[1])-(x0[0]-x2[0])*(x0[1]-x1[1])))/2;
 		mass[ind0]+=rho*area/3.0f;
 		mass[ind1]+=rho*area/3.0f;
 		mass[ind2]+=rho*area/3.0f;
-		G+=x0*mass[ind0];
-		G+=x1*mass[ind1];
-		G+=x2*mass[ind2];
+		G[0]+=x0[0]*mass[ind0]+x1[0]*mass[ind1]+x2[0]*mass[ind2];
+		G[1]+=x0[1]*mass[ind0]+x1[1]*mass[ind1]+x2[1]*mass[ind2];
 		totmass+=rho*area;
 		//add K00;
 		K(2*ind0,2*ind0)+=E*area*((1-nu)*dN0[0]*dN0[0]+(1-2*nu)*dN0[1]*dN0[1])/((1+nu)*(1-2*nu));
@@ -111,36 +128,29 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 		}
 	}
 	oneOverMass = 1.0f/totmass;
-	G*=oneOverMass;
+	G[0]*=oneOverMass;
+	G[1]*=oneOverMass;
 }
 
 void DeformableObject::update(Shape* newSh){
 	DeformableObject *newDO = (DeformableObject*) newSh;
-	int n=u.size();
 	float dt=timeStep;
-	vector<Vector2f> accel (n);
-	vector<Vector2f> temp (n);
-	K.Mult(u,beta,velocity,temp);
-	int i;
-	Vector2f val;
-	newDO->G=G;
-	for(i=0;i<n;i++){
-		accel[i][0]=(force[i][0]-temp[i][0])/mass[i]-alpha*velocity[i][0];
-		accel[i][1]=(force[i][1]-temp[i][1])/mass[i]-alpha*velocity[i][1];
-		newDO->u[i]=u[i]*2-previous_u[i]+accel[i]*(dt*dt); //position is now u(t+h)
-		newDO->previous_u[i]=u[i]; //previous_position is now u(t)
-		newDO->velocity[i]=(newDO->u[i]-newDO->previous_u[i])/dt; // u(t+h)-u(t)
-		newDO->G+=(newDO->u[i]-newDO->previous_u[i])*mass[i]*oneOverMass;
-		if(newDO->velocity[i][0]>0.1) newDO->velocity[i][0]=0.1;
-		if(newDO->velocity[i][0]<-0.1) newDO->velocity[i][0]=-0.1;
-		if(newDO->velocity[i][1]>0.1) newDO->velocity[i][1]=0.1;
-		if(newDO->velocity[i][1]<-0.1) newDO->velocity[i][1]=-0.1;
-		force[i][0]=0.0f;
-		force[i][1]=0.0f;
+	newDO->velocity = solver.solve(velocity+dt*revMass*(force-K*u));
+	for(int i=0;i<mass.size();i++){
+		if(newDO->velocity(2*i)>clamp) newDO->velocity(2*i)=clamp;
+		if(newDO->velocity(2*i)<-clamp) newDO->velocity(2*i)=-clamp;
+		if(newDO->velocity(2*i+1)>clamp) newDO->velocity(2*i+1)=clamp;
+		if(newDO->velocity(2*i+1)<-clamp) newDO->velocity(2*i+1)=-clamp;
 	}
-	for(i=0;i<nVertices;i++){
-		newDO->vertices[2*i]=vlist[contour[i]][0]+newDO->u[contour[i]][0];
-		newDO->vertices[2*i+1]=vlist[contour[i]][1]+newDO->u[contour[i]][1];
+	newDO->u=u+dt*newDO->velocity;
+	for(int i=0;i<mass.size();i++){
+		newDO->G[0]+=(newDO->u(2*i)-u(2*i))*mass[i]*oneOverMass;
+		newDO->G[1]+=(newDO->u(2*i+1)-u(2*i+1))*mass[i]*oneOverMass;
+	}
+	force.setZero();
+	for(int i=0;i<nVertices;i++){
+		newDO->vertices[2*i]=vlist[2*contour[i]]+newDO->u(contour[i]*2);
+		newDO->vertices[2*i+1]=vlist[2*contour[i]+1]+newDO->u(contour[i]*2+1);
 	}
 }
 
@@ -165,8 +175,8 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 			ny=-ny;
 		}
 		// set respective velocity
-		vabx=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[0]-(velocity.at(contour.at(edgeIndex))[0]+velocity.at(contour.at((edgeIndex+1)%nVertices))[0])/2.0f;
-		vaby=collidingDo->velocity.at(collidingDo->contour.at(pointIndex))[1]-(velocity.at(contour.at(edgeIndex))[1]+velocity.at(contour.at((edgeIndex+1)%nVertices))[1])/2.0f;
+		vabx=collidingDo->velocity(collidingDo->contour.at(pointIndex)*2)-(velocity(contour.at(edgeIndex)*2)+velocity(contour.at((edgeIndex+1)%nVertices)*2))/2.0f;
+		vaby=collidingDo->velocity(collidingDo->contour.at(pointIndex)*2+1)-(velocity(contour.at(edgeIndex)*2+1)+velocity(contour.at((edgeIndex+1)%nVertices)*2+1))/2.0f;
 		if(vabx*nx+vaby*ny > 0.0f) return;
 		impulseCoeff = -((1.0f+(e+collidingDo->e)/2.0f)*(vabx*nx+vaby*ny))/(oneOverMass+collidingDo->oneOverMass);
 		// Set up collision object
@@ -202,8 +212,8 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 		rxb = xCollision - G[0];
 		ryb = yCollision - G[1];
 		// set respective velocity
-		vabx=collidingRb->xVel-(velocity.at(contour.at(edgeIndex))[0]+velocity.at(contour.at((edgeIndex+1)%nVertices))[0])/2.0f;
-		vaby=collidingRb->yVel-(velocity.at(contour.at(edgeIndex))[1]+velocity.at(contour.at((edgeIndex+1)%nVertices))[1])/2.0f;
+		vabx=collidingRb->xVel-(velocity(contour.at(edgeIndex)*2)+velocity(contour.at((edgeIndex+1)%nVertices)*2))/2.0f;
+		vaby=collidingRb->yVel-(velocity(contour.at(edgeIndex)*2+1)+velocity(contour.at((edgeIndex+1)%nVertices)*2+1))/2.0f;
 		if(vabx*nx+vaby*ny > 0.0f) return;
 		impulseCoeff = -((1.0f+(e+collidingRb->e)/2.0f)*(vabx*nx+vaby*ny))/(oneOverMass+collidingRb->oneOverMass);
 		// Set up collision object
@@ -227,8 +237,8 @@ const float &rx, const float &ry, const vector<int> &cv, const float &impulseCoe
 	int n = cv.size();
 	float dt=timeStep;
 	for(int i=0;i<n;i++){
-		force[cv[i]][0]=(nx*impulseCoeff-mass[cv[i]]*velocity[cv[i]][0])/(n*dt);
-		force[cv[i]][1]=(ny*impulseCoeff-mass[cv[i]]*velocity[cv[i]][1])/(n*dt);
+		force(cv[i]*2)=(nx*impulseCoeff-velocity(cv[i]*2)*mass[cv[i]])/(n*dt);
+		force(cv[i]*2+1)=(ny*impulseCoeff-velocity(cv[i]*2+1)*mass[cv[i]])/(n*dt);
 	}
 }
 
