@@ -17,6 +17,7 @@
 const float timeStep = totTimeStep/intermediateSteps;
 const float inf = std::numeric_limits<float>::max();
 const float eps = 0.00000001f;
+const float clamp = 0.2f;
 
 enum wallTypes {
 	kStandardWall = 0
