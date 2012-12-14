@@ -268,9 +268,13 @@ int main(int argc, char** argv)
 				1.0f,
 				solver);
 	DeformableObject *do1 = new DeformableObject(VertexList_Rectangle(-0.15,0.0,0.3,0.1),FaceList_Rectangle(),
-						Contour_Rectangle(),0.03f,0.1f,0.2f,1.0f,1.0f,0.3f);
+						Contour_Rectangle(),0.01f,0.3f,0.1f,0.1f,0.1f,0.3f);
 	DeformableObject *do2 = new DeformableObject(VertexList_Rectangle(-0.15,-0.7,0.3,0.1),FaceList_Rectangle(),
-						Contour_Rectangle(),0.03f,0.1f,0.2f,1.0f,1.0f,0.3f);				
+						Contour_Rectangle(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);
+	DeformableObject *do3 = new DeformableObject(VertexList_Circle(0.0f,0.0f,0.15),FaceList_Circle(),
+						Contour_Circle(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);
+	DeformableObject *dov = new DeformableObject(VertexList_V(0.0f,0.0f,0.3f,0.3f),FaceList_V(),
+						Contour_V(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);			
 	Shape *w = new Wall(kStandardWall);
 	Shape *recW1 = new RectangleWall(
 				0.0f, -0.9f,
