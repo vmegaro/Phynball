@@ -1,6 +1,7 @@
 #ifndef C_Wall
 #define C_Wall
 #include "RigidBody.h"
+#include "Constants.h"
 #include <vector>
 
 using namespace std;
@@ -16,6 +17,8 @@ public:
 	virtual void handleResponseImpulse(const float &nx, const float &ny,
 										const float &rx, const float &ry,
 										const float &impulseCoeff) {};
+
+	virtual bool containsShape(Shape *sh) {return 0;};
 
 protected:
 	void buildStandardWall();

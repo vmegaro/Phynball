@@ -14,6 +14,8 @@ public:
 	void setGoUp();
 	void setGoDown();
 
+	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq);
+
 private:
 	float minAngle, maxAngle;
 	float upAngularVel;

@@ -1,3 +1,5 @@
+#ifndef C_CircleRB
+#define C_CircleRB
 #include "RigidBody.h"
 #include <vector>
 
@@ -16,7 +18,11 @@ public:
 			 RungeKuttaODESolver *odeSolver);
 	CircleRB * clone();
 
+	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq);
+
 protected:
 	float r;
 	void updateVertices();
 };
+
+#endif

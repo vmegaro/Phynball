@@ -4,7 +4,32 @@
 #include <windows.h>
 #include <fstream>
 
-bool PolygonIntersectionTest(const vector<float> &p,const vector<float> &q, vector<int> &resp, vector<int> &resq){
+bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, vector<int >&resq){
+
+	// Broad-phase: discard objects with no bounding areas averlap
+	float dist2 = (sh1->xPos-sh2->xPos)*(sh1->xPos-sh2->xPos)+(sh1->yPos-sh2->yPos)*(sh1->yPos-sh2->yPos);
+	float criticalDist2 = (sh1->criticalRadius+sh2->criticalRadius)*(sh1->criticalRadius+sh2->criticalRadius);
+	if(dist2 > criticalDist2) return false;
+
+	// Rigidbody collision detection speed up
+	int check = 0;
+	if(sh1->nature() == kShapeNatureRB) {
+		check++;
+		RigidBody *rb1 = (RigidBody *)sh1;
+		// Try to detect collision smartly: use properties of the shape of the specific objects.
+		if(rb1->containsShape(sh2, resp, resq)) return true;
+	}
+	if(sh2->nature() == kShapeNatureRB) {
+		check++;
+		RigidBody *rb2 = (RigidBody *)sh2;
+		if(rb2->containsShape(sh1, resq, resp)) return true;
+	}
+	if(check == 2) return false;
+
+	// We are not lucky: perform a complete non convex polygon intersection test
+	vector<float> p,q;
+	p = sh1->vertices;
+	q = sh2->vertices;
 	int m=p.size()/2;
 	int n=q.size()/2;
 	int i,j,k,l;
@@ -99,6 +124,7 @@ Board::Board(){
 	shapes = &shapeVec1;
 	newShapes = &shapeVec2;
 	walls = &wallsVec;
+	playerScore = 0;
 }
 
 Board::~Board(){
@@ -117,17 +143,19 @@ void Board::addWall(Shape *w) {
 }
 
 void Board::addLeftPale(Shape *p) {
-	shapeVec1.push_back(p);
-	shapeVec2.push_back(p);
 	Pale *lp = (Pale *)p;
 	leftPale = lp;
 }
 
 void Board::addRightPale(Shape *p) {
-	shapeVec1.push_back(p);
-	shapeVec2.push_back(p);
 	Pale *rp = (Pale *)p;
 	rightPale = rp;
+}
+
+void Board::addPlayBall(Shape *_playBall) {
+	shapeVec1.push_back(_playBall);
+	shapeVec2.push_back(_playBall->clone());
+	this->playBall = (PlayBall *)_playBall;
 }
 
 void Board::updatePaleDirection(int paleType, int paleDir) {
@@ -138,6 +166,21 @@ void Board::updatePaleDirection(int paleType, int paleDir) {
 		if(paleType == kLeftPale) leftPale->setGoUp();
 		else rightPale->setGoUp();
 	}
+}
+
+bool wasGoal = false;
+bool isGoal = false;
+void Board::setScore() {
+	/*isGoal = false;
+	if(playBall->yPos >= 75.0 && 
+		playBall->xPos >= leftPoleX && playBall->xPos <= rightPoleX) {
+			if(!wasGoal){
+				isGoal = true;
+				wasGoal = true;
+			}
+	}else {
+		wasGoal = false;
+	}*/
 }
 
 int collisionInd;
@@ -153,6 +196,10 @@ void Board::update() {
 			(*it1)->update(*it2); // timestep integration
 		}
 
+
+		leftPale->update(leftPale);
+		rightPale->update(rightPale);
+
 		collisions.clear();
 
 		// Collisions
@@ -162,10 +209,51 @@ void Board::update() {
 		vector<Wall *>::iterator wIt;
 		vector<int> resp, resq;
 
+		//Pales collisions
+		for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
+			if(polygonIntersectionTest(*nsit1,leftPale,resp,resq)) {
+				Collision *collision = new Collision();
+				if(resp.size() == 2) {
+					(*nsit1)->setCollisionResponse(
+												leftPale,
+												resq.at(0),
+												resp.at(0),
+												collision);
+				}else {
+					(leftPale)->setCollisionResponse(
+												*nsit1,
+												resp.at(0),
+												resq.at(0),
+												collision);
+				}
+				collisions.push_back(collision);
+				resp.clear();resq.clear();
+			}
+
+			if(polygonIntersectionTest(*nsit1,rightPale,resp,resq)) {
+				Collision *collision = new Collision();
+				if(resp.size() == 2) {
+					(*nsit1)->setCollisionResponse(
+												rightPale,
+												resq.at(0),
+												resp.at(0),
+												collision);
+				}else {
+					(rightPale)->setCollisionResponse(
+												*nsit1,
+												resp.at(0),
+												resq.at(0),
+												collision);
+				}
+				collisions.push_back(collision);
+				resp.clear();resq.clear();
+			}
+		}
+
 		//Wall collisions
 		for(wIt = walls->begin(); wIt != walls->end();++wIt) {
 			for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
-				if(PolygonIntersectionTest((*nsit1)->vertices,(*wIt)->vertices,resp,resq)) {
+				if(polygonIntersectionTest(*nsit1,*wIt,resp,resq)) {
 					Collision *collision = new Collision();
 					if(resp.size() == 2) {
 						(*nsit1)->setCollisionResponse(
@@ -189,7 +277,7 @@ void Board::update() {
 		// Dynamic objects collisions
 		for(sit1 = shapes->begin() ,nsit1 = newShapes->begin(), collisionInd = 0;nsit1 != newShapes->end();++sit1, ++nsit1, collisionInd++) {
 			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != newShapes->end();++sit2, ++nsit2) {
-				if(PolygonIntersectionTest((*nsit1)->vertices,(*nsit2)->vertices,resp,resq)) {
+				if(polygonIntersectionTest(*nsit1,*nsit2,resp,resq)) {
 					Collision *collision = new Collision();
 					if(resp.size() == 2) {
 						(*nsit1)->setCollisionResponse(
@@ -225,4 +313,8 @@ void Board::update() {
 	else leftPale->setGoDown();
 	if(GetAsyncKeyState(VkKeyScan('n')) <= keyPress) rightPale->setGoUp();
 	else rightPale->setGoDown();
+
+	//Check and set if someone scored
+	setScore();
+	if(isGoal) playerScore++;
 }

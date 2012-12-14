@@ -4,6 +4,8 @@
 #include "RungeKuttaODESolver.h"
 #include "Shape.h"
 
+using namespace std;
+
 class RigidBody: public Shape {
 public:
 	virtual void setXAcc(const float &x, const float &v, float &a);
@@ -17,18 +19,18 @@ public:
 	virtual RigidBody * clone() {return 0;};
 	int nature(){return 1;};
 
-	float xPos,yPos,angularPos;
-	float xVel,yVel,angularVel;
-
 	float Tx,Ty,Rx,Ry;
 
 	float e;
+	float mass;
 	float oneOverMass;
 
 	RungeKuttaODESolver *solver;
 
+	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq) {return 0;};
+
 protected:
-	float mass, momentOfInertia;
+	float momentOfInertia;
 	float oneOverI;
 	float gravityScale;
 	float friction;

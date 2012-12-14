@@ -10,6 +10,62 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="CircleRB.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="DeformableObject.h" />
+    <ClInclude Include="DownWall.h" />
+    <ClInclude Include="GoalKeeper.h" />
+    <ClInclude Include="LeftTriangleWall.h" />
+    <ClInclude Include="LeftWall.h" />
+    <ClInclude Include="MassSpringObject.h" />
+    <ClInclude Include="MassSpringParticle.h" />
+    <ClInclude Include="Pale.h" />
+    <ClInclude Include="PlayBall.h" />
+    <ClInclude Include="RectangleMSO.h" />
+    <ClInclude Include="RectangleRB.h" />
+    <ClInclude Include="RectangleWall.h" />
+    <ClInclude Include="Referee.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RightTriangleWall.h" />
+    <ClInclude Include="RightWall.h" />
+    <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="RungeKuttaODESolver.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="TriangleWall.h" />
+    <ClInclude Include="UpWall.h" />
+    <ClInclude Include="utilities.h" />
+    <ClInclude Include="Wall.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="CircleRB.cpp" />
+    <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="DeformableObject.cpp" />
+    <ClCompile Include="DownWall.cpp" />
+    <ClCompile Include="GoalKeeper.cpp" />
+    <ClCompile Include="LeftTriangleWall.cpp" />
+    <ClCompile Include="LeftWall.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MassSpringObject.cpp" />
+    <ClCompile Include="MassSpringParticle.cpp" />
+    <ClCompile Include="Pale.cpp" />
+    <ClCompile Include="PlayBall.cpp" />
+    <ClCompile Include="RectangleMSO.cpp" />
+    <ClCompile Include="RectangleRB.cpp" />
+    <ClCompile Include="RectangleWall.cpp" />
+    <ClCompile Include="Referee.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RightTriangleWall.cpp" />
+    <ClCompile Include="RightWall.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="RungeKuttaODESolver.cpp" />
+    <ClCompile Include="TriangleWall.cpp" />
+    <ClCompile Include="UpWall.cpp" />
+    <ClCompile Include="Wall.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0374D529-7760-4FF2-B386-C6D276FFB5CE}</ProjectGuid>
     <RootNamespace>PBSproject</RootNamespace>
@@ -19,14 +75,12 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -43,9 +97,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Users\vicks\Documents\Visual Studio 2012\Projects\Phynball\libs\Simple OpenGL Image Library\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\vicks\Documents\Visual Studio 2012\Projects\Phynball\libs\Simple OpenGL Image Library\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -61,37 +118,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Board.cpp" />
-    <ClCompile Include="CircleRB.cpp" />
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="DeformableObject.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Pale.cpp" />
-    <ClCompile Include="RectangleRB.cpp" />
-    <ClCompile Include="RectangleWall.cpp" />
-    <ClCompile Include="renderer.cpp" />
-    <ClCompile Include="RigidBody.cpp" />
-    <ClCompile Include="RungeKuttaODESolver.cpp" />
-    <ClCompile Include="Wall.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Board.h" />
-    <ClInclude Include="CircleRB.h" />
-    <ClInclude Include="Collision.h" />
-    <ClInclude Include="Constants.h" />
-    <ClInclude Include="DeformableObject.h" />
-    <ClInclude Include="GLUT\glut.h" />
-    <ClInclude Include="Pale.h" />
-    <ClInclude Include="RectangleRB.h" />
-    <ClInclude Include="RectangleWall.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RigidBody.h" />
-    <ClInclude Include="RungeKuttaODESolver.h" />
-    <ClInclude Include="Shape.h" />
-    <ClInclude Include="utilities.h" />
-    <ClInclude Include="Wall.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

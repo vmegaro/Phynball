@@ -5,6 +5,7 @@ class RigidBody;
 class RungeKuttaODESolver {
 public:
 	RungeKuttaODESolver(float deltaT);
+	void updateRigidBodyPositionAndVelocities(RigidBody *rb, RigidBody *newRb);
 	void updateRigidBodyPositionAngleAndVelocities(RigidBody *rb, RigidBody *newRb);
 	void updateRigidBodyPositionAngleAndVelocitiesWithCustomDt(RigidBody *rb, RigidBody *newRb, float customDt);
 private:

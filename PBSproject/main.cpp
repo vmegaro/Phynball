@@ -6,7 +6,18 @@
 #include "Board.h"
 #include "Wall.h"
 #include "RectangleWall.h"
+#include "TriangleWall.h"
+#include "UpWall.h"
+#include "DownWall.h"
+#include "LeftWall.h"
+#include "RightWall.h"
+#include "LeftTriangleWall.h"
+#include "RightTriangleWall.h"
 #include "Pale.h"
+#include "PlayBall.h"
+#include "GoalKeeper.h"
+#include "Referee.h"
+#include "RectangleMSO.h"
 
 vector<int> FaceList_Rectangle(){
 	vector<int> face (48);
@@ -159,6 +170,69 @@ vector<int> Contour_V(){
 	return contour;
 }
 
+void setupAndRun(int argc, char** argv) {
+	Board *board = new Board();
+	RungeKuttaODESolver *solver = new RungeKuttaODESolver(timeStep);
+
+	for(int i = 40; i < 70; i+=5) {
+		for(int j = 40; j < 70; j+=5) {
+			Shape *rec = new RectangleRB(
+				j, i,
+				0.0f, 0.0f,
+				2.0f, 2.0f,
+				0.0f, 0.0f,
+				0.8f, 0.0f, 0.0f,
+				1.0f,
+				solver);
+			//board->addShape(rec);
+		}
+	}
+
+	Shape *recWLeft = new LeftWall();
+	Shape *recWRight = new RightWall();
+	Shape *recWUp = new UpWall();
+	Shape *recWDown = new DownWall();
+	Shape *triWLeft = new LeftTriangleWall();
+	Shape *triWRight = new RightTriangleWall();
+	Shape *trWallR = new TriangleWall(95.0f, 90.0f,
+									  85.0f, 90.0f,
+									  95.0f, 80.0f,
+									  0.5f);
+	Shape *trWallL = new TriangleWall(5.0f, 90.0f,
+									  15.0f, 90.0f,
+									  5.0f, 80.0f,
+									  0.5f);
+
+	Shape *cir1 = new PlayBall(solver);
+	Shape *goalKeeper = new GoalKeeper(cir1);
+	Shape *net = new RectangleWall(50.0f, 87.0f,
+								30.0f, 7.0f,
+								0.0f,
+								0.5f);
+
+	DeformableObject *do1 = new DeformableObject(VertexList_Rectangle(-0.15,0.0,0.3,0.1),FaceList_Rectangle(),
+						Contour_Rectangle(),0.03f,0.1f,0.2f,1.0f,1.0f,0.3f);
+
+	Shape *paleL = new Pale(kLeftPale,solver);
+	Shape *paleR = new Pale(kRightPale,solver);
+
+	board->addWall(recWUp);
+	board->addWall(recWLeft);
+	board->addWall(recWRight);
+	board->addWall(recWDown);
+	board->addWall(triWLeft);
+	board->addWall(triWRight);
+	board->addWall(trWallR);
+	board->addWall(trWallL);
+	board->addShape(goalKeeper);
+	board->addPlayBall(cir1);
+	board->addWall(net);
+	board->addLeftPale(paleL);
+	board->addRightPale(paleR);
+
+	Renderer *r = new Renderer(&argc, argv, board);
+}
+
 int main(int argc, char** argv)
 {
 	Board *board = new Board();
@@ -244,17 +318,17 @@ int main(int argc, char** argv)
 				1.0f,
 				solver);
 	Shape *cir2 = new CircleRB(
-				0.0f, 0.6f,
+				60.0f, 60.0f,
+				0.0f, -50.0f,
+				4.0f,
 				0.0f, 0.0f,
-				0.08f,
-				0.0f, 0.0f,
-				0.001f, 0.0f, 0.0f,
+				0.1f, 0.0f, 0.0f,
 				1.0f,
 				solver);
 	Shape *cir3 = new CircleRB(
 				0.0f, -0.5f,
 				0.0f, 0.0f,
-				0.08f,
+				8.0f,
 				0.0f, 0.0f,
 				0.001f, 0.0f, 0.0f,
 				1.0f,
@@ -267,13 +341,13 @@ int main(int argc, char** argv)
 				0.001f, 0.0f, 0.0f,
 				1.0f,
 				solver);
-	DeformableObject *do1 = new DeformableObject(VertexList_Rectangle(-0.15,0.0,0.3,0.1),FaceList_Rectangle(),
-						Contour_Rectangle(),0.01f,0.3f,0.1f,0.1f,0.1f,0.3f);
-	DeformableObject *do2 = new DeformableObject(VertexList_Rectangle(-0.15,-0.7,0.3,0.1),FaceList_Rectangle(),
+	Shape *do1 = new DeformableObject(VertexList_Rectangle(50,30,20,10),FaceList_Rectangle(),
+						Contour_Rectangle(),0.01f,0.3f,0.1f,0.1f,0.1f,0.3f); do1->xPos = 50; do1->yPos = 30;
+	Shape *do2 = new DeformableObject(VertexList_Rectangle(-0.15,-0.7,0.3,0.1),FaceList_Rectangle(),
 						Contour_Rectangle(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);
-	DeformableObject *do3 = new DeformableObject(VertexList_Circle(0.0f,0.0f,0.15),FaceList_Circle(),
+	Shape *do3 = new DeformableObject(VertexList_Circle(0.0f,0.0f,0.15),FaceList_Circle(),
 						Contour_Circle(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);
-	DeformableObject *dov = new DeformableObject(VertexList_V(0.0f,0.0f,0.3f,0.3f),FaceList_V(),
+	Shape *dov = new DeformableObject(VertexList_V(0.0f,0.0f,0.3f,0.3f),FaceList_V(),
 						Contour_V(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);			
 	Shape *w = new Wall(kStandardWall);
 	Shape *recW1 = new RectangleWall(
@@ -300,28 +374,29 @@ int main(int argc, char** argv)
 	Shape *paleR = new Pale(kRightPale,solver);
 
 	//board->addShape(rec1);
-	board->addShape(rec2);
+	/*board->addShape(rec2);
 	board->addShape(rec3);
 	board->addShape(rec4);
 	board->addShape(rec5);
 	board->addShape(rec6);
 	board->addShape(rec7);
 	board->addShape(rec8);
-	board->addShape(rec9);
+	board->addShape(rec9);*/
 	//board->addShape(cir1);
 	board->addShape(cir2);
-	board->addShape(cir3);
-	board->addShape(cir4);
+	/*board->addShape(cir3);
+	board->addShape(cir4);*/
 	//board ->addShape(w);
 	board->addShape(do1);
-	//board->addShape(do2);	
+	/*board->addShape(do2);	
 	board->addWall(recW1);
 	board->addWall(recW2);
 	board->addWall(recW3);
-	board->addWall(recW4);
+	board->addWall(recW4);*/
 	board->addLeftPale(paleL);
 	board->addRightPale(paleR);
 
 	Renderer *r = new Renderer(&argc, argv, board);
+	//setupAndRun(argc,argv);
 	return 0;
 }

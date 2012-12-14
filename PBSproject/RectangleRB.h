@@ -16,6 +16,10 @@ public:
 				RungeKuttaODESolver *odeSolver);
 	RectangleRB * clone();
 
+	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq);
+
+	virtual void draw();
+
 protected:
 
 	float width,heigth;

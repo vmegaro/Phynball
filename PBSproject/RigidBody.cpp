@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "DeformableObject.h"
+#include "MassSpringObject.h"
 #include "Constants.h"
 #include <cmath>
 
@@ -28,7 +29,7 @@ float rxa, rya, rxb, ryb;
 float jOverMass;
 float xCollision, yCollision;
 void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, const int &edgeIndex, Collision *collision){
-	if(collidingSh->nature()==1){
+	if(collidingSh->nature() == kShapeNatureRB){
 		RigidBody *collidingRb = (RigidBody *)collidingSh;
 		xCollision=collidingRb->vertices.at(pointIndex*2);
 		yCollision=collidingRb->vertices.at(pointIndex*2+1);
@@ -70,7 +71,7 @@ void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, 
 		collision->ryb = ryb;
 		collision->j = impulseCoeff;
 		collision->resolved = 0;
-	}else{
+	}else {
 		DeformableObject *collidingDo = (DeformableObject *) collidingSh;
 		xCollision=collidingDo->vertices.at(pointIndex*2);
 		yCollision=collidingDo->vertices.at(pointIndex*2+1);

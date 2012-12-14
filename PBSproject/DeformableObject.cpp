@@ -52,6 +52,10 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	}
 	Eigen::ColPivHouseholderQR<MatrixXf> _solver((1+alpha*dt)*I+dt*(beta+dt)*revMass*K);
 	solver=_solver;
+	criticalRadius = 1000;
+
+	xPos = G[0];
+	yPos = G[1];
 }
 
 void DeformableObject::ComputeStiffnessMatrixandMass(){
@@ -160,7 +164,7 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 	float rxa,rya,rxb,ryb;
 	float xCollision,yCollision;
 	float impulseCoeff;
-	if(collidingSh->nature()==2){
+	if(collidingSh->nature() == kShapeNatureDO){
 		DeformableObject *collidingDo = (DeformableObject*) collidingSh;
 		xCollision=collidingDo->vertices.at(pointIndex*2);
 		yCollision=collidingDo->vertices.at(pointIndex*2+1);

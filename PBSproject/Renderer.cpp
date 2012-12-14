@@ -2,6 +2,8 @@
 #include "GL/glut.h"
 #else
 #include "GLUT/glut.h"
+#include <gl\gl.h>			// Header File For The OpenGL32 Library
+#include <gl\glu.h>
 #endif
 
 #if MACVERSION==1
@@ -19,8 +21,9 @@
 #include <iostream>
 #include "Renderer.h"
 #include "Constants.h"
+#include "SOIL.h"
 
-#define MICROSECS_PER_FRAME  20000//50 frames per second
+#define MICROSECS_PER_FRAME  totTimeStep*1000.0f
 using namespace std;
 
 Board *board;
@@ -50,6 +53,93 @@ unsigned int getTime()
 #endif
 }
 
+GLuint bgTex;
+
+void prepareTexture() {
+
+	// Texture for background
+	const char* fname = "../images/field.png";
+	bgTex = SOIL_load_OGL_texture // load an image file directly as a new OpenGL texture 
+	(
+		fname,
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_INVERT_Y
+	);
+	if (!bgTex)
+    {
+        printf("failed to load texture: %s\n",fname);
+        //exit(0);
+	}else {
+		printf("loaded texture: %s\n", fname);
+	}
+
+	glBindTexture (GL_TEXTURE_2D, bgTex);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+
+	//draw dynamic objects
+	for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
+		(*it)->setupTexture();
+	}
+
+	//draw walls
+	for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
+		(*it)->setupTexture();
+	}
+
+	// draw pales
+	board->leftPale->setupTexture();
+	board->rightPale->setupTexture();
+}
+
+void drawObjects() {
+	//draw dynamic objects
+	for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
+		(*it)->draw();
+	}
+
+	//draw walls
+	for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
+		(*it)->draw();
+	}
+
+	// draw pales
+	board->leftPale->draw();
+	board->rightPale->draw();
+	// end draw pales
+}
+
+void drawBackground() {
+	// draw background
+	glEnable(GL_TEXTURE_2D);	
+
+	glBindTexture (GL_TEXTURE_2D, bgTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
+		glTexCoord2f(1.0, 0.0); glVertex2f(1.0f, -1.0f);
+		glTexCoord2f(1.0, 1.0); glVertex2f(1.0f, 1.0f);
+		glTexCoord2f(0.0, 1.0); glVertex2f(-1.0f, 1.0f);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}
+
+char score[25];
+void drawString (void * font, char *s, float x, float y){
+     unsigned int i;
+     glRasterPos2f(x, y);
+
+	 sprintf(score,"%d",board->playerScore);
+
+     for (i = 0; i < strlen (s); i++)
+          glutBitmapCharacter (font, s[i]);
+}
+
 void display(){
 	if (getTime() - next_update > MICROSECS_PER_FRAME) {
 		next_update += MICROSECS_PER_FRAME;
@@ -59,52 +149,17 @@ void display(){
 
 		//update
 		board->update();
+
+		// Draw background with texture
+		//drawBackground();
+
+		// draw shapes, pales and walls
+		drawObjects();
+
+		// draw score
+		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.8f);
 		
-		//draw dynamic objects
-		for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
-			glColor3dv((*it)->color);
-
-			glBegin(GL_POLYGON);
-			for(int k = 0; k < (*it)->nVertices; k++){
-				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
-			}
-			glEnd();
-
-			glLineWidth(1);
-			glColor3d(0,0,0);
-
-			glDepthFunc(GL_ALWAYS);
-			glBegin(GL_LINE_LOOP);
-			for(int k = 0; k < (*it)->nVertices; k++){
-				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
-			}
-			glEnd();
-			glDepthFunc(GL_EQUAL);
-		}
-
-		//draw walls
-		for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
-			glColor3dv((*it)->color);
-
-			glBegin(GL_POLYGON);
-			for(int k = 0; k < (*it)->nVertices; k++){
-				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
-			}
-			glEnd();
-
-			glLineWidth(1);
-			glColor3d(0,0,0);
-
-			glDepthFunc(GL_ALWAYS);
-			glBegin(GL_LINE_LOOP);
-			for(int k = 0; k < (*it)->nVertices; k++){
-				glVertex2d((*it)->vertices.at(2*k), (*it)->vertices.at(2*k+1));
-			}
-			glEnd();
-			glDepthFunc(GL_EQUAL);
-		}
-		
-		glFlush();
+		//glFlush();
 		glutPostRedisplay();
 		glutSwapBuffers();
 	}
@@ -123,27 +178,13 @@ void reshape(int width, int height){
 	}
 	cout<<"\n";
 	*/
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, windowWidth, windowHeight);
 	//glOrtho(-width/2, width/2, -height/2, height/2, 1, 100);
 }
 
 void idle(){
 	glutPostRedisplay();
 }
-
-void updatePale(unsigned char key, int x, int y) {
-	switch (key) {
-	case 27:  // ESC
-		exit(0);
-	case 'x':
-		board->updatePaleDirection(kLeftPale, kPaleUpDir);
-		break;
-	case 'n':
-		board->updatePaleDirection(kRightPale, kPaleUpDir);
-		break;
-	}
-}
-
 
 Renderer::Renderer(int* argc, char** argv, Board *brd){
 	#if MACVERSION==1
@@ -162,15 +203,14 @@ Renderer::Renderer(int* argc, char** argv, Board *brd){
 
 	glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-    glutInitWindowSize(600, 600);
-	glutInitWindowPosition(glutGet(GLUT_SCREEN_WIDTH)/2-400, glutGet(GLUT_SCREEN_HEIGHT)/2-300);
+    glutInitWindowSize(windowWidth, windowHeight);
+	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH)-windowWidth)/2, (glutGet(GLUT_SCREEN_HEIGHT)-windowHeight)/2);
 
 	glutCreateWindow("PBS Project");
 
 	glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
-	//glutKeyboardFunc(updatePale);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -179,6 +219,10 @@ Renderer::Renderer(int* argc, char** argv, Board *brd){
 
 	next_update = getTime();
 	glEnable(GL_LINE_SMOOTH);
+	//glDisable(GL_DEPTH_TEST);
+
+	prepareTexture();
+
     glutMainLoop();
 }
 

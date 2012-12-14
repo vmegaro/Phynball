@@ -4,19 +4,21 @@
 #include "Shape.h"
 #include "Pale.h"
 #include "Wall.h"
+#include "PlayBall.h"
 
 using namespace std;
 
 class Board
 {
 public:
-	Board(void);
+	Board();
 	~Board(void);
 
 	void addShape(Shape *s);
 	void addWall(Shape *w);
 	void addLeftPale(Shape *p);
 	void addRightPale(Shape *p);
+	void addPlayBall(Shape *_playBall);
 
 	void update();
 
@@ -26,15 +28,23 @@ public:
 	vector<Shape *> *newShapes;
 	vector<Wall *> *walls;
 
+	Pale *leftPale;
+	Pale *rightPale;
+
+	int playerScore;
+	void setScore();
+
+	PlayBall *playBall;
+
+
 protected:
+
+	bool polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, vector<int >&resq);
 
 	vector<Shape *> *aux;
 
 	vector<Shape *> shapeVec1;
 	vector<Shape *> shapeVec2;
-
-	Pale *leftPale;
-	Pale *rightPale;
 
 	vector<Collision *> collisions;
 	vector<Wall *> wallsVec;

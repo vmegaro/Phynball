@@ -6,10 +6,6 @@
 
 using namespace std;
 
-float sign(float f) {
-	return (float*)(f > 0) - (float*)(f < 0);
-}
-
 
 RungeKuttaODESolver::RungeKuttaODESolver(float deltaT) {
 	h = deltaT;
@@ -17,10 +13,9 @@ RungeKuttaODESolver::RungeKuttaODESolver(float deltaT) {
 	hSixth = h/6.0f;
 }
 
-void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *rb, RigidBody *newRb) {
-
+void RungeKuttaODESolver::updateRigidBodyPositionAndVelocities(RigidBody *rb, RigidBody *newRb) {
 	//X position and velocity
-	//cout << rb->yVel << endl;
+	//cout << rb->xPos << endl;
 
 	kx1 = rb->xVel;
 	rb->setXAcc(rb->xPos,rb->xVel,kv1);
@@ -55,6 +50,48 @@ void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *r
 	if(s*finalValue > maxRigidVel) finalValue = s*maxRigidVel;
 	else if(s*finalValue < minRigidVel) finalValue = 0.0f;
 	newRb->yVel = finalValue;
+	//cout << newRb->yVel << nl;
+}
+
+void RungeKuttaODESolver::updateRigidBodyPositionAngleAndVelocities(RigidBody *rb, RigidBody *newRb) {
+
+	//X position and velocity
+	//cout << rb->xPos << endl;
+
+	kx1 = rb->xVel;
+	rb->setXAcc(rb->xPos,rb->xVel,kv1);
+	kx2 = rb->xVel + kv1*hHalf;
+	rb->setXAcc(rb->xPos+kx1*hHalf,kx2,kv2);
+	kx3 = rb->xVel + kv2*hHalf;
+	rb->setXAcc(rb->xPos+kx2*hHalf,kx3,kv3);
+	kx4 = rb->xVel + kv3*h;
+	rb->setXAcc(rb->xPos+kx3*h,kx4,kv4);
+
+	newRb->xPos = rb->xPos + hSixth*(kx1+2.0f*kx2+2.0f*kx3+kx4);
+	finalValue = rb->xVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	float s = sign(finalValue);
+	if(s*finalValue > maxRigidVel) finalValue = s*maxRigidVel;
+	else if(s*finalValue < minRigidVel) finalValue = 0.0f;
+	newRb->xVel = finalValue;
+
+	// Y position and velocity
+
+	kx1 = rb->yVel;
+	rb->setYAcc(rb->yPos,rb->yVel,kv1);
+	kx2 = rb->yVel + kv1*hHalf;
+	rb->setYAcc(rb->yPos+kx1*hHalf,kx2,kv2);
+	kx3 = rb->yVel + kv2*hHalf;
+	rb->setYAcc(rb->yPos+kx2*hHalf,kx3,kv3);
+	kx4 = rb->yVel + kv3*h;
+	rb->setYAcc(rb->yPos+kx3*h,kx4,kv4);
+
+	newRb->yPos = rb->yPos + hSixth*(kx1+2.0f*kx2+2.0f*kx3+kx4);
+	finalValue = rb->yVel + hSixth*(kv1+2.0f*kv2+2.0f*kv3+kv4);
+	s = sign(finalValue);
+	if(s*finalValue > maxRigidVel) finalValue = s*maxRigidVel;
+	else if(s*finalValue < minRigidVel) finalValue = 0.0f;
+	newRb->yVel = finalValue;
+	//cout << newRb->yVel << nl;
 
 	// Angular position and velocity
 	kx1 = rb->angularVel;
