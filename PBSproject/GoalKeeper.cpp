@@ -1,6 +1,6 @@
 #include "GoalKeeper.h"
 
-#define standardVel 15.0f
+#define standardVel 1.0f
 #define minPos 30.0f
 #define maxPos 70.0f
 

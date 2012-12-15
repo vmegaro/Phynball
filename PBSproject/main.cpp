@@ -210,8 +210,9 @@ void setupAndRun(int argc, char** argv) {
 								0.0f,
 								0.5f);
 
-	DeformableObject *do1 = new DeformableObject(VertexList_Rectangle(-0.15,0.0,0.3,0.1),FaceList_Rectangle(),
-						Contour_Rectangle(),0.03f,0.1f,0.2f,1.0f,1.0f,0.3f);
+	Shape *do1 = new DeformableObject(VertexList_Rectangle(35,85,30,5),FaceList_Rectangle(),
+						Contour_Rectangle(),1.0f,0.3f,0.1f,0.1f,0.1f,0.3f); do1->xPos = 35; do1->yPos = 80;
+	board->addShape(do1);
 
 	Shape *paleL = new Pale(kLeftPale,solver);
 	Shape *paleR = new Pale(kRightPale,solver);
@@ -224,9 +225,9 @@ void setupAndRun(int argc, char** argv) {
 	board->addWall(triWRight);
 	board->addWall(trWallR);
 	board->addWall(trWallL);
-	board->addShape(goalKeeper);
+	//board->addShape(goalKeeper);
 	board->addPlayBall(cir1);
-	board->addWall(net);
+	//board->addWall(net);
 	board->addLeftPale(paleL);
 	board->addRightPale(paleR);
 
@@ -342,7 +343,7 @@ int main(int argc, char** argv)
 				1.0f,
 				solver);
 	Shape *do1 = new DeformableObject(VertexList_Rectangle(50,30,20,10),FaceList_Rectangle(),
-						Contour_Rectangle(),0.01f,0.3f,0.1f,0.1f,0.1f,0.3f); do1->xPos = 50; do1->yPos = 30;
+						Contour_Rectangle(),0.5f,0.3f,0.1f,0.1f,0.1f,0.3f); do1->xPos = 50; do1->yPos = 30;
 	Shape *do2 = new DeformableObject(VertexList_Rectangle(-0.15,-0.7,0.3,0.1),FaceList_Rectangle(),
 						Contour_Rectangle(),0.03f,0.3f,0.2f,0.2f,0.2f,0.3f);
 	Shape *do3 = new DeformableObject(VertexList_Circle(0.0f,0.0f,0.15),FaceList_Circle(),
@@ -396,7 +397,7 @@ int main(int argc, char** argv)
 	board->addLeftPale(paleL);
 	board->addRightPale(paleR);
 
-	Renderer *r = new Renderer(&argc, argv, board);
-	//setupAndRun(argc,argv);
+	//Renderer *r = new Renderer(&argc, argv, board);
+	setupAndRun(argc,argv);
 	return 0;
 }

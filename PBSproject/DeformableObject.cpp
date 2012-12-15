@@ -52,7 +52,7 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	}
 	Eigen::ColPivHouseholderQR<MatrixXf> _solver((1+alpha*dt)*I+dt*(beta+dt)*revMass*K);
 	solver=_solver;
-	criticalRadius = 1000;
+	criticalRadius = 15;
 
 	xPos = G[0];
 	yPos = G[1];
