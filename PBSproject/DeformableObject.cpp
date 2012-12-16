@@ -157,6 +157,9 @@ void DeformableObject::update(Shape* newSh){
 	for(int i=0;i<nVertices;i++){
 		newDO->vertices[2*i]=vlist[2*contour[i]]+newDO->u(contour[i]*2);
 		newDO->vertices[2*i+1]=vlist[2*contour[i]+1]+newDO->u(contour[i]*2+1);
+		if((newDO->vertices[2*i+1]-yPos)*(newDO->vertices[2*i+1]-yPos)+(newDO->vertices[2*i]-xPos)*(newDO->vertices[2*i]-xPos)>criticalRadius*criticalRadius){
+			criticalRadius=sqrt((newDO->vertices[2*i+1]-yPos)*(newDO->vertices[2*i+1]-yPos)+(newDO->vertices[2*i]-xPos)*(newDO->vertices[2*i]-xPos));
+		}		
 	}
 }
 
