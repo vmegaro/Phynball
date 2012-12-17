@@ -4,7 +4,7 @@
 #include <vector>
 #include "Collision.h"
 #include "Constants.h"
-#include "SOIL.h"
+#include "../libs/Simple OpenGL Image Library/src/SOIL.h"
 
 class Shape {
 public:
@@ -49,7 +49,7 @@ public:
 			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 		}
 	};
-	void draw() {
+	virtual void draw() {
 		glColor3dv(color);
 		glBegin(GL_POLYGON);
 			for(int k = 0; k < nVertices; k++){

@@ -1,8 +1,8 @@
 #include "PlayBall.h"
 #include "Constants.h"
 
-PlayBall::PlayBall(RungeKuttaODESolver *solver) : CircleRB(80.0f, 80.0f,
-															0.0f, 0.0f,
+PlayBall::PlayBall(RungeKuttaODESolver *solver) : CircleRB(75.0f, 65.0f,
+															0.0f, 100.0f,
 															2.5f,
 															0.0f, 0.0f,
 															1.0f, 0.0f, 1.0f,

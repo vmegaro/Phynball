@@ -125,6 +125,7 @@ Board::Board(){
 	newShapes = &shapeVec2;
 	walls = &wallsVec;
 	playerScore = 0;
+	otherTeamScore = 0;
 }
 
 Board::~Board(){
@@ -169,18 +170,47 @@ void Board::updatePaleDirection(int paleType, int paleDir) {
 }
 
 bool wasGoal = false;
-bool isGoal = false;
+bool isOtherTeamGoal = false, isPlayerGoal = false;
 void Board::setScore() {
-	/*isGoal = false;
-	if(playBall->yPos >= 75.0 && 
-		playBall->xPos >= leftPoleX && playBall->xPos <= rightPoleX) {
+	isOtherTeamGoal = false; isPlayerGoal = false;
+	if(playBall->yPos >= 80.0 && 
+		playBall->xPos >= leftGoalPole && playBall->xPos <= rightGoalPole) {
 			if(!wasGoal){
-				isGoal = true;
+				isPlayerGoal = true;
 				wasGoal = true;
 			}
+	}else if(playBall->yPos < 0) {
+		if(!wasGoal){
+			isOtherTeamGoal = true;
+			wasGoal = true;
+		}
 	}else {
 		wasGoal = false;
-	}*/
+	}
+}
+
+float positionNoise;
+vector<int> resp, resq;
+void Board::restoreBallPosition() {
+	playBall->xPos = 70.0f;
+	playBall->yPos = 60.0f;
+	playBall->xVel = 0.0f;
+	playBall->yVel = 3.0f;
+	playBall->angularPos = 0.0f;
+	playBall->angularVel = 0.0f;
+	vector<Shape *>::iterator it1;
+	while(true) {
+		positionNoise = (float)rand()*5.0f/(float)RAND_MAX -2.5f;
+		playBall->xPos += positionNoise;
+		positionNoise = (float)rand()*5.0f/(float)RAND_MAX -2.5f;
+		playBall->yPos += positionNoise;
+		it1 = shapes->begin();
+		for(;it1 != shapes->end();++it1){
+			if(polygonIntersectionTest(*it1,playBall,resp,resq)) continue;
+		}
+		break;
+	}
+	
 }
 
 int collisionInd;
@@ -207,7 +237,6 @@ void Board::update() {
 
 		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
 		vector<Wall *>::iterator wIt;
-		vector<int> resp, resq;
 
 		//Pales collisions
 		for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
@@ -316,5 +345,12 @@ void Board::update() {
 
 	//Check and set if someone scored
 	setScore();
-	if(isGoal) playerScore++;
+	if(isPlayerGoal) {
+		playerScore++;
+		restoreBallPosition();
+	}
+	if(isOtherTeamGoal) {
+		otherTeamScore++;
+		restoreBallPosition();
+	}
 }

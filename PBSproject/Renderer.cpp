@@ -21,7 +21,7 @@
 #include <iostream>
 #include "Renderer.h"
 #include "Constants.h"
-#include "SOIL.h"
+#include "../libs/Simple OpenGL Image Library/src/SOIL.h"
 
 #define MICROSECS_PER_FRAME  totTimeStep*1000.0f
 using namespace std;
@@ -134,8 +134,6 @@ void drawString (void * font, char *s, float x, float y){
      unsigned int i;
      glRasterPos2f(x, y);
 
-	 sprintf(score,"%d",board->playerScore);
-
      for (i = 0; i < strlen (s); i++)
           glutBitmapCharacter (font, s[i]);
 }
@@ -151,13 +149,16 @@ void display(){
 		board->update();
 
 		// Draw background with texture
-		//drawBackground();
+		drawBackground();
 
 		// draw shapes, pales and walls
 		drawObjects();
 
 		// draw score
-		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.8f);
+		sprintf(score,"Player: %d",board->playerScore);
+		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.88f);
+		sprintf(score,"SuperTeam: %d",board->otherTeamScore);
+		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.83f);
 		
 		//glFlush();
 		glutPostRedisplay();

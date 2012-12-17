@@ -64,7 +64,7 @@ Pale::Pale(int position, RungeKuttaODESolver *odeSolver) {
 	updateVertices();
 
 	mass = inf; friction = 0.0f; gravityScale = 0.0f;
-	e = 0.5f;
+	e = 0.4f;
 	momentOfInertia = mass*(longWidth*longWidth+height*height)/20.0f;
 	oneOverMass = 0.0f; oneOverI = 1.0f/momentOfInertia;
 	Tx = 0.0f; Ty = 0.0f; Rx = 0.0f; Ry = 0.0f;

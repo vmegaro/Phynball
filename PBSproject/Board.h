@@ -32,7 +32,9 @@ public:
 	Pale *rightPale;
 
 	int playerScore;
+	int otherTeamScore;
 	void setScore();
+	void restoreBallPosition();
 
 	PlayBall *playBall;
 

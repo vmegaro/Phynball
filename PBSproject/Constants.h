@@ -21,7 +21,7 @@
 #define nl '\n'
 
 #define totTimeStep 0.03f
-#define intermediateSteps 10.0f
+#define intermediateSteps 30.0f
 
 const float windowHeight = 800.0f;
 const float windowWidth = 800.0f;
@@ -33,6 +33,14 @@ const float timeStep = totTimeStep/intermediateSteps;
 const float inf = std::numeric_limits<float>::max();
 const float eps = 0.00000001f;
 const float clamp = 0.5f;
+
+const float goalWidth = 30.0f;
+const float goalHeight = 3.0f;
+const float leftGoalPole = 50.0f-(goalWidth/2.0f);
+const float rightGoalPole = 50.0f+(goalWidth/2.0f);
+const float bottomGoal = 85.0f;
+const float upGoal = bottomGoal+goalHeight;
+const float middleGoal = bottomGoal+goalHeight/2.0f;
 
 enum wallOrder {
 	kWallUp = 0,
@@ -59,7 +67,7 @@ enum shapeType {
 #define kPaleDownDir 0
 #define kPaleUpDir 1
 
-#define maxRigidVel 80.0f
+#define maxRigidVel 40.0f
 #define maxRigidAngularVel 8.0f
 #define minRigidVel 0.0f
 #define minRigidAngularVel 0.0f
@@ -69,8 +77,5 @@ enum shapeType {
 #define ccw(Ax,Ay,Bx,By,Cx,Cy) ((Cy-Ay)*(Bx-Ax)>(By-Ay)*(Cx-Ax))
 #define setVertexOpenGL(x,y) glVertex2d(x/worldWidth*2.0-1.0,y/worldHeight*2.0-1.0)
 #define sign(fl) ((fl>=0.0f)-(fl<0.0f))
-
-#define leftPoleX 30
-#define rightPoleX 70
 
 #endif
