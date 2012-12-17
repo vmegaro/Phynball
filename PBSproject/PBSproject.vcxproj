@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
+    <ClInclude Include="CharacterRB.h" />
     <ClInclude Include="CircleRB.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="CharacterRB.cpp" />
     <ClCompile Include="CircleRB.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="DeformableObject.cpp" />
@@ -116,6 +118,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Users\vicks\Documents\Visual Studio 2012\Projects\Phynball\libs\Simple OpenGL Image Library\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

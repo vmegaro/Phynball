@@ -79,19 +79,24 @@ void prepareTexture() {
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 
-	//draw dynamic objects
+	// dynamic objects
 	for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
 		(*it)->setupTexture();
 	}
 
-	//draw walls
+	// walls
 	for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
 		(*it)->setupTexture();
 	}
 
-	// draw pales
+	//  pales
 	board->leftPale->setupTexture();
 	board->rightPale->setupTexture();
+
+	// characters
+	for(vector<Shape *>::iterator it = board->goalCharacters.begin();it != board->goalCharacters.end();it++){
+		(*it)->setupTexture();
+	}
 }
 
 void drawObjects() {
@@ -109,6 +114,11 @@ void drawObjects() {
 	board->leftPale->draw();
 	board->rightPale->draw();
 	// end draw pales
+
+	//draw characters
+	for(vector<Shape *>::iterator it = board->goalCharacters.begin();it != board->goalCharacters.end();it++){
+		(*it)->draw();
+	}
 }
 
 void drawBackground() {
@@ -134,8 +144,6 @@ void drawString (void * font, char *s, float x, float y){
      unsigned int i;
      glRasterPos2f(x, y);
 
-	 sprintf(score,"%d",board->playerScore);
-
      for (i = 0; i < strlen (s); i++)
           glutBitmapCharacter (font, s[i]);
 }
@@ -151,13 +159,16 @@ void display(){
 		board->update();
 
 		// Draw background with texture
-		//drawBackground();
+		drawBackground();
 
 		// draw shapes, pales and walls
 		drawObjects();
 
 		// draw score
-		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.8f);
+		sprintf(score,"Player: %d",board->playerScore);
+		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.88f);
+		sprintf(score,"SuperTeam: %d",board->otherTeamScore);
+		drawString(GLUT_BITMAP_TIMES_ROMAN_24, score, -0.8f, 0.83f);
 		
 		//glFlush();
 		glutPostRedisplay();

@@ -23,7 +23,6 @@ const float &rx, const float &ry, const vector<int> &cv,const float &impulseCoef
 	VectorXf u;
 	VectorXf velocity;
 	vector<int> contour;
-	float G [2];
 	float length;
 	float e;
 	float oneOverMass;

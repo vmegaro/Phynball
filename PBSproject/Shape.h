@@ -49,7 +49,7 @@ public:
 			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 		}
 	};
-	void draw() {
+	virtual void draw() {
 		glColor3dv(color);
 		glBegin(GL_POLYGON);
 			for(int k = 0; k < nVertices; k++){

@@ -174,17 +174,17 @@ void setupAndRun(int argc, char** argv) {
 	Board *board = new Board();
 	RungeKuttaODESolver *solver = new RungeKuttaODESolver(timeStep);
 
-	for(int i = 40; i < 70; i+=5) {
-		for(int j = 40; j < 70; j+=5) {
+	for(int i = 30; i < 80; i+=5) {
+		for(int j = 30; j < 80; j+=5) {
 			Shape *rec = new RectangleRB(
 				j, i,
 				0.0f, 0.0f,
 				2.0f, 2.0f,
 				0.0f, 0.0f,
-				0.8f, 0.0f, 0.0f,
+				0.08f, 0.0f, 0.0f,
 				1.0f,
 				solver);
-			//board->addShape(rec);
+			board->addShape(rec);
 		}
 	}
 
@@ -210,8 +210,8 @@ void setupAndRun(int argc, char** argv) {
 								0.0f,
 								0.5f);
 
-	Shape *do1 = new DeformableObject(VertexList_Rectangle(35,85,30,5),FaceList_Rectangle(),
-						Contour_Rectangle(),1.0f,0.3f,0.1f,0.1f,0.1f,0.3f); do1->xPos = 35; do1->yPos = 80;
+	Shape *do1 = new DeformableObject(VertexList_Rectangle(leftGoalPole,bottomGoal,goalWidth,goalHeight),FaceList_Rectangle(),
+						Contour_Rectangle(),0.03f,1.0f,0.3f,0.3f,0.3f,0.3f); do1->xPos = 50; do1->yPos = middleGoal;
 	board->addShape(do1);
 
 	Shape *paleL = new Pale(kLeftPale,solver);
@@ -225,7 +225,7 @@ void setupAndRun(int argc, char** argv) {
 	board->addWall(triWRight);
 	board->addWall(trWallR);
 	board->addWall(trWallL);
-	//board->addShape(goalKeeper);
+	board->addShape(goalKeeper);
 	board->addPlayBall(cir1);
 	//board->addWall(net);
 	board->addLeftPale(paleL);

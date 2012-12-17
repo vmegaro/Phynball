@@ -30,11 +30,18 @@ public:
 	vector<Shape *> *newShapes;
 	vector<Wall *> *walls;
 
+	void startGoalAnimation();
+	void setGravityToGoalChars(float gravity);
+	void reinitCharPositions();
+	vector<Shape *> goalCharacters;
+
 	Pale *leftPale;
 	Pale *rightPale;
 
 	int playerScore;
+	int otherTeamScore;
 	void setScore();
+	void restoreBallPosition();
 
 	PlayBall *playBall;
 

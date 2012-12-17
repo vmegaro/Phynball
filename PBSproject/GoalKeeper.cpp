@@ -1,8 +1,9 @@
 #include "GoalKeeper.h"
 
 #define standardVel 1.0f
-#define minPos 30.0f
-#define maxPos 70.0f
+#define goalKeeperHeight 10.0f
+#define goalKeeperWidth 5.0f
+#define goalKeeperPadding 5.0f
 
 enum VerticesPositions
 {
@@ -17,8 +18,8 @@ enum VerticesPositions
 	NUM_Vertices
 };
 
-GoalKeeper::GoalKeeper(Shape *_playBall) : RectangleWall(50.0f, 76.5f,
-										5.0f, 10.0f,
+GoalKeeper::GoalKeeper(Shape *_playBall) : RectangleWall(50.0f, bottomGoal-goalHeight/2.0f-goalKeeperPadding,
+										goalKeeperWidth, goalKeeperHeight,
 										0.0f,
 										0.5f) {
 
@@ -34,10 +35,10 @@ GoalKeeper * GoalKeeper::clone() {
 }
 
 void GoalKeeper::update(Shape *newSh) {
-	if(playBall->xPos > xPos+1.0f && xPos < maxPos) {
+	if(playBall->xPos > xPos+1.0f && xPos < rightGoalPole) {
 		xVel = standardVel;
 	}
-	else if(playBall->xPos < xPos-1.0f && xPos > minPos) {
+	else if(playBall->xPos < xPos-1.0f && xPos > leftGoalPole) {
 		xVel = -standardVel;
 	}
 	else {

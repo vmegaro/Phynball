@@ -75,8 +75,8 @@ void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, 
 		DeformableObject *collidingDo = (DeformableObject *) collidingSh;
 		xCollision=collidingDo->vertices.at(pointIndex*2);
 		yCollision=collidingDo->vertices.at(pointIndex*2+1);
-		rxa = xCollision - collidingDo->G[0];
-		rya = yCollision - collidingDo->G[1];
+		rxa = xCollision - collidingDo->xPos;
+		rya = yCollision - collidingDo->yPos;
 		rxb = xCollision - xPos;
 		ryb = yCollision - yPos;
 		//Compute velocity

@@ -52,10 +52,12 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	}
 	Eigen::ColPivHouseholderQR<MatrixXf> _solver((1+alpha*dt)*I+dt*(beta+dt)*revMass*K);
 	solver=_solver;
-	criticalRadius = 15;
-
-	xPos = G[0];
-	yPos = G[1];
+	criticalRadius=(vlist[2*contour[0]]-xPos)*(vlist[2*contour[0]]-xPos)+(vlist[2*contour[0]+1]-yPos)*(vlist[2*contour[0]+1]-yPos);
+	for(int i=1;i<n;i++){
+		float radius=(vlist[2*contour[i]]-xPos)*(vlist[2*contour[i]]-xPos)+(vlist[2*contour[i]+1]-yPos)*(vlist[2*contour[i]+1]-yPos);
+		if(radius>criticalRadius) criticalRadius=radius;
+	}
+	criticalRadius=sqrt(criticalRadius);
 }
 
 void DeformableObject::ComputeStiffnessMatrixandMass(){
@@ -79,8 +81,8 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 		mass[ind0]+=rho*area/3.0f;
 		mass[ind1]+=rho*area/3.0f;
 		mass[ind2]+=rho*area/3.0f;
-		G[0]+=x0[0]*mass[ind0]+x1[0]*mass[ind1]+x2[0]*mass[ind2];
-		G[1]+=x0[1]*mass[ind0]+x1[1]*mass[ind1]+x2[1]*mass[ind2];
+		xPos+=x0[0]*mass[ind0]+x1[0]*mass[ind1]+x2[0]*mass[ind2];
+		yPos+=x0[1]*mass[ind0]+x1[1]*mass[ind1]+x2[1]*mass[ind2];
 		totmass+=rho*area;
 		//add K00;
 		K(2*ind0,2*ind0)+=E*area*((1-nu)*dN0[0]*dN0[0]+(1-2*nu)*dN0[1]*dN0[1])/((1+nu)*(1-2*nu));
@@ -132,8 +134,8 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 		}
 	}
 	oneOverMass = 1.0f/totmass;
-	G[0]*=oneOverMass;
-	G[1]*=oneOverMass;
+	xPos*=oneOverMass;
+	yPos*=oneOverMass;
 }
 
 void DeformableObject::update(Shape* newSh){
@@ -148,13 +150,16 @@ void DeformableObject::update(Shape* newSh){
 	}
 	newDO->u=u+dt*newDO->velocity;
 	for(int i=0;i<mass.size();i++){
-		newDO->G[0]+=(newDO->u(2*i)-u(2*i))*mass[i]*oneOverMass;
-		newDO->G[1]+=(newDO->u(2*i+1)-u(2*i+1))*mass[i]*oneOverMass;
+		newDO->xPos+=(newDO->u(2*i)-u(2*i))*mass[i]*oneOverMass;
+		newDO->yPos+=(newDO->u(2*i+1)-u(2*i+1))*mass[i]*oneOverMass;
 	}
 	force.setZero();
 	for(int i=0;i<nVertices;i++){
 		newDO->vertices[2*i]=vlist[2*contour[i]]+newDO->u(contour[i]*2);
 		newDO->vertices[2*i+1]=vlist[2*contour[i]+1]+newDO->u(contour[i]*2+1);
+		if((newDO->vertices[2*i+1]-yPos)*(newDO->vertices[2*i+1]-yPos)+(newDO->vertices[2*i]-xPos)*(newDO->vertices[2*i]-xPos)>criticalRadius*criticalRadius){
+			criticalRadius=sqrt((newDO->vertices[2*i+1]-yPos)*(newDO->vertices[2*i+1]-yPos)+(newDO->vertices[2*i]-xPos)*(newDO->vertices[2*i]-xPos));
+		}		
 	}
 }
 
@@ -213,8 +218,8 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 		}
 		rxa = xCollision - collidingRb->xPos;
 		rya = yCollision - collidingRb->yPos;
-		rxb = xCollision - G[0];
-		ryb = yCollision - G[1];
+		rxb = xCollision - xPos;
+		ryb = yCollision - yPos;
 		// set respective velocity
 		vabx=collidingRb->xVel-(velocity(contour.at(edgeIndex)*2)+velocity(contour.at((edgeIndex+1)%nVertices)*2))/2.0f;
 		vaby=collidingRb->yVel-(velocity(contour.at(edgeIndex)*2+1)+velocity(contour.at((edgeIndex+1)%nVertices)*2+1))/2.0f;
