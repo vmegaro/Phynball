@@ -12,19 +12,19 @@ bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, v
 	if(dist2 > criticalDist2) return false;
 
 	// Rigidbody collision detection speed up
-	int check = 0;
-	if(sh1->nature() == kShapeNatureRB) {
-		check++;
-		RigidBody *rb1 = (RigidBody *)sh1;
-		// Try to detect collision smartly: use properties of the shape of the specific objects.
-		if(rb1->containsShape(sh2, resp, resq)) return true;
-	}
-	if(sh2->nature() == kShapeNatureRB) {
-		check++;
-		RigidBody *rb2 = (RigidBody *)sh2;
-		if(rb2->containsShape(sh1, resq, resp)) return true;
-	}
-	if(check == 2) return false;
+	//int check = 0;
+	//if(sh1->nature() == kShapeNatureRB) {
+	//	check++;
+	//	RigidBody *rb1 = (RigidBody *)sh1;
+	//	// Try to detect collision smartly: use properties of the shape of the specific objects.
+	//	if(rb1->containsShape(sh2, resp, resq)) return true;
+	//}
+	//if(sh2->nature() == kShapeNatureRB) {
+	//	check++;
+	//	RigidBody *rb2 = (RigidBody *)sh2;
+	//	if(rb2->containsShape(sh1, resq, resp)) return true;
+	//}
+	//if(check == 2) return false;
 
 	// We are not lucky: perform a complete non convex polygon intersection test
 	vector<float> p,q;
@@ -188,37 +188,44 @@ void Board::setScore() {
 		wasGoal = false;
 	}
 }
-
+bool collisionFound = false;
 float positionNoise;
 vector<int> resp, resq;
 void Board::restoreBallPosition() {
+	//cout << "rest0" << nl;
 	playBall->xPos = 70.0f;
 	playBall->yPos = 60.0f;
 	playBall->xVel = 0.0f;
-	playBall->yVel = 3.0f;
+	playBall->yVel = 0.0f;
 	playBall->angularPos = 0.0f;
 	playBall->angularVel = 0.0f;
 	vector<Shape *>::iterator it1;
 	while(true) {
+		collisionFound = false;
 		positionNoise = (float)rand()*5.0f/(float)RAND_MAX -2.5f;
 		playBall->xPos += positionNoise;
 		positionNoise = (float)rand()*5.0f/(float)RAND_MAX -2.5f;
 		playBall->yPos += positionNoise;
 		it1 = shapes->begin();
 		for(;it1 != shapes->end();++it1){
-			if(polygonIntersectionTest(*it1,playBall,resp,resq)) continue;
+			if(playBall == *it1) continue;
+			if(polygonIntersectionTest(*it1,playBall,resp,resq)) {
+				collisionFound = true;
+				break;
+			}
 		}
-		break;
+		if(!collisionFound) break;
 	}
-	
+	//cout << "rest1" << nl;
 }
 
 int collisionInd;
 float cdvx, cdvy, cdva, cimp;
 void Board::update() {
-
+	//cout << "Updating" << nl;
 	// Iteration
 	for(int t = 0; t < intermediateSteps; t++) {
+		//if(otherTeamScore == 2) cout << "update shapes" << nl;
 		// Update position and velocities
 		vector<Shape *>::iterator it1 = shapes->begin(),
 									  it2 = newShapes->begin();
@@ -226,7 +233,7 @@ void Board::update() {
 			(*it1)->update(*it2); // timestep integration
 		}
 
-
+		//if(otherTeamScore == 2) cout << "update pales" << nl;
 		leftPale->update(leftPale);
 		rightPale->update(rightPale);
 
@@ -237,7 +244,8 @@ void Board::update() {
 
 		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
 		vector<Wall *>::iterator wIt;
-
+		
+		//if(otherTeamScore == 2) cout << "pales collisions" << nl;
 		//Pales collisions
 		for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
 			if(polygonIntersectionTest(*nsit1,leftPale,resp,resq)) {
@@ -279,9 +287,13 @@ void Board::update() {
 			}
 		}
 
+		//if(otherTeamScore == 2) cout << "walls collision" << nl;
 		//Wall collisions
-		for(wIt = walls->begin(); wIt != walls->end();++wIt) {
-			for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
+		int w = 0;
+		for(wIt = walls->begin(); wIt != walls->end();++wIt,w++) {
+			int s = 0;
+			for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1,s++) {
+				//if(otherTeamScore == 2) cout << w << " <-> " << s << nl;
 				if(polygonIntersectionTest(*nsit1,*wIt,resp,resq)) {
 					Collision *collision = new Collision();
 					if(resp.size() == 2) {
@@ -302,7 +314,7 @@ void Board::update() {
 				}
 			}
 		}
-
+		//if(otherTeamScore == 2) cout << "shapes collision" << nl;
 		// Dynamic objects collisions
 		for(sit1 = shapes->begin() ,nsit1 = newShapes->begin(), collisionInd = 0;nsit1 != newShapes->end();++sit1, ++nsit1, collisionInd++) {
 			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != newShapes->end();++sit2, ++nsit2) {
@@ -327,6 +339,7 @@ void Board::update() {
 			}
 		}
 
+		//if(otherTeamScore == 2) cout << "solve collisions" << nl;
 		// Update using impulses
 		vector<Collision *>::iterator colIt = collisions.begin();
 		for(;colIt != collisions.end();++colIt) {
@@ -344,7 +357,9 @@ void Board::update() {
 	else rightPale->setGoDown();
 
 	//Check and set if someone scored
+	//if(otherTeamScore == 2) cout << "setscore0" << nl;
 	setScore();
+	//if(otherTeamScore == 2) cout << "setscore1" << nl;
 	if(isPlayerGoal) {
 		playerScore++;
 		restoreBallPosition();
@@ -353,4 +368,5 @@ void Board::update() {
 		otherTeamScore++;
 		restoreBallPosition();
 	}
+	//if(otherTeamScore == 2) cout << "end" << nl;
 }
