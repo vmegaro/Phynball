@@ -20,8 +20,10 @@ public:
 	void addRightPale(Shape *p);
 	void addPlayBall(Shape *_playBall);
 
-	void update();
+	void moveLeftPale(bool b);
+	void moveRightPale(bool b);
 
+	void update();
 	void updatePaleDirection(int paleType, int paleDir);
 
 	vector<Shape *> *shapes;

@@ -21,9 +21,9 @@
 #include <iostream>
 #include "Renderer.h"
 #include "Constants.h"
-#include "SOIL.h"
+#include "../libs/Simple OpenGL Image Library/src/SOIL.h"
 
-#define MICROSECS_PER_FRAME  totTimeStep*1000.0f
+#define MICROSECS_PER_FRAME  totTimeStep*100.0f
 using namespace std;
 
 Board *board;
@@ -186,6 +186,22 @@ void idle(){
 	glutPostRedisplay();
 }
 
+void keypress(unsigned char key, int x, int y){
+	if(key=='x')
+		board->moveLeftPale(true);
+	if(key=='n')
+		board->moveRightPale(true);
+	cout<<key<<" pressed " ;
+}
+
+void keyreleased(unsigned char key, int x, int y){
+	if(key=='x')
+		board->moveLeftPale(false);
+	if(key=='n')
+		board->moveRightPale(false);
+	cout<<key<<" released ";
+}
+
 Renderer::Renderer(int* argc, char** argv, Board *brd){
 	#if MACVERSION==1
 	// nothing to do...
@@ -211,6 +227,10 @@ Renderer::Renderer(int* argc, char** argv, Board *brd){
 	glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutIdleFunc(idle);
+
+	glutKeyboardFunc(keypress);
+	glutKeyboardUpFunc(keyreleased);
+	glutIgnoreKeyRepeat(true);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

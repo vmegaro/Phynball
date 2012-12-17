@@ -4,7 +4,7 @@
 #include <vector>
 #include "Collision.h"
 #include "Constants.h"
-#include "SOIL.h"
+#include "../libs/Simple OpenGL Image Library/src/SOIL.h"
 
 class Shape {
 public:

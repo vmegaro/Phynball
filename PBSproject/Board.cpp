@@ -183,6 +183,20 @@ void Board::setScore() {
 	}*/
 }
 
+void Board::moveLeftPale(bool b){
+	if(b)
+		leftPale->setGoUp();
+	else
+		leftPale->setGoDown();
+}
+
+void Board::moveRightPale(bool b){
+	if(b)
+		rightPale->setGoUp();
+	else
+		rightPale->setGoDown();
+}
+
 int collisionInd;
 float cdvx, cdvy, cdva, cimp;
 void Board::update() {
@@ -309,10 +323,12 @@ void Board::update() {
 		shapes = newShapes;
 		newShapes = aux;
 	}
+	/*
 	if(GetAsyncKeyState(VkKeyScan('x')) <= keyPress) leftPale->setGoUp();
 	else leftPale->setGoDown();
 	if(GetAsyncKeyState(VkKeyScan('n')) <= keyPress) rightPale->setGoUp();
 	else rightPale->setGoDown();
+	*/
 
 	//Check and set if someone scored
 	setScore();
