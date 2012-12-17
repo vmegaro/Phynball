@@ -28,6 +28,11 @@ public:
 	vector<Shape *> *newShapes;
 	vector<Wall *> *walls;
 
+	void startGoalAnimation();
+	void setGravityToGoalChars(float gravity);
+	void reinitCharPositions();
+	vector<Shape *> goalCharacters;
+
 	Pale *leftPale;
 	Pale *rightPale;
 

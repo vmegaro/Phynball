@@ -29,10 +29,11 @@ public:
 
 	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq) {return 0;};
 
+	float gravityScale;
+
 protected:
 	float momentOfInertia;
 	float oneOverI;
-	float gravityScale;
 	float friction;
 
 	virtual void updateVertices() {};

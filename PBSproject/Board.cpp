@@ -1,6 +1,7 @@
 #include "Board.h"
 #include <iostream>
 #include "Constants.h"
+#include "CharacterRB.h"
 #include <windows.h>
 #include <fstream>
 
@@ -126,6 +127,12 @@ Board::Board(){
 	walls = &wallsVec;
 	playerScore = 0;
 	otherTeamScore = 0;
+
+	RungeKuttaODESolver *solver = new RungeKuttaODESolver(timeStep);
+	goalCharacters.push_back(new CharacterRB('g',solver));
+	goalCharacters.push_back(new CharacterRB('o',solver));
+	goalCharacters.push_back(new CharacterRB('a',solver));
+	goalCharacters.push_back(new CharacterRB('l',solver));
 }
 
 Board::~Board(){
@@ -220,9 +227,91 @@ void Board::restoreBallPosition() {
 }
 
 int collisionInd;
+int animationFrames = 0;
+bool shouldDisplyAnimation = false;
+void Board::startGoalAnimation() {
+	for(int i = 0; i < intermediateSteps; i++) {
+		vector<Shape *>::iterator it1 = goalCharacters.begin();
+		for(;it1 != goalCharacters.end();++it1){
+			(*it1)->update(*it1); // timestep integration
+		}
+
+		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
+		for(sit1 = goalCharacters.begin() ,nsit1 = goalCharacters.begin(), collisionInd = 0;nsit1 != goalCharacters.end();++sit1, ++nsit1, collisionInd++) {
+			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != goalCharacters.end();++sit2, ++nsit2) {
+				if(polygonIntersectionTest(*nsit1,*nsit2,resp,resq)) {
+					Collision *collision = new Collision();
+					if(resp.size() == 2) {
+						(*nsit1)->setCollisionResponse(
+													*nsit2,
+													resq.at(0),
+													resp.at(0),
+													collision);
+					}else {
+						(*nsit2)->setCollisionResponse(
+													*nsit1,
+													resp.at(0),
+													resq.at(0),
+													collision);
+					}
+					collisions.push_back(collision);
+					resp.clear();resq.clear();
+				}
+			}
+		}
+
+		//if(otherTeamScore == 2) cout << "solve collisions" << nl;
+		// Update using impulses
+		vector<Collision *>::iterator colIt = collisions.begin();
+		for(;colIt != collisions.end();++colIt) {
+			(*colIt)->resolve();
+		}
+	}
+	
+}
+
+void Board::setGravityToGoalChars(float gravity) {
+	CharacterRB *ch;
+	ch = (CharacterRB *)goalCharacters.at(0);
+	ch->gravityScale = gravity;
+	ch = (CharacterRB *)goalCharacters.at(1);
+	ch->gravityScale = gravity;
+	ch = (CharacterRB *)goalCharacters.at(2);
+	ch->gravityScale = gravity;
+	ch = (CharacterRB *)goalCharacters.at(3);
+	ch->gravityScale = gravity;
+}
+
+void Board::reinitCharPositions() {
+	setGravityToGoalChars(0.0f);
+	CharacterRB *ch;
+	for(int i = 0; i < 4; i++) {
+		ch = (CharacterRB *)goalCharacters.at(i);
+		ch->reinit();
+	}
+}
+
 float cdvx, cdvy, cdva, cimp;
 void Board::update() {
 	//cout << "Updating" << nl;
+	if(shouldDisplyAnimation) {
+		animationFrames ++;
+		if(animationFrames >= 20) {
+			startGoalAnimation();
+			animationFrames ++;
+			if(animationFrames == 150) {
+				setGravityToGoalChars(3.0f);
+			}
+			if(animationFrames > 350) {
+				shouldDisplyAnimation = false;
+				animationFrames = 0;
+				reinitCharPositions();
+				restoreBallPosition();
+			}
+			return;
+		}
+	}
+
 	// Iteration
 	for(int t = 0; t < intermediateSteps; t++) {
 		//if(otherTeamScore == 2) cout << "update shapes" << nl;
@@ -362,11 +451,11 @@ void Board::update() {
 	//if(otherTeamScore == 2) cout << "setscore1" << nl;
 	if(isPlayerGoal) {
 		playerScore++;
-		restoreBallPosition();
+		shouldDisplyAnimation = true;
 	}
 	if(isOtherTeamGoal) {
 		otherTeamScore++;
-		restoreBallPosition();
+		shouldDisplyAnimation = true;
 	}
 	//if(otherTeamScore == 2) cout << "end" << nl;
 }

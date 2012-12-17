@@ -8,7 +8,7 @@
 #define maxAngL M_PI/8.0f
 #define minAngR M_PI/8.0f*7.0f
 #define maxAngR M_PI/4.0f*5.0f
-#define standardAngVel 8.0f
+#define standardAngVel 6.0f
 #define longWidth 15.0f
 #define shortWidth 2.0f
 #define height 3.0f

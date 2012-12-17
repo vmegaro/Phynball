@@ -79,19 +79,24 @@ void prepareTexture() {
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 
-	//draw dynamic objects
+	// dynamic objects
 	for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
 		(*it)->setupTexture();
 	}
 
-	//draw walls
+	// walls
 	for(vector<Wall *>::iterator it = board->walls->begin();it != board->walls->end();it++){
 		(*it)->setupTexture();
 	}
 
-	// draw pales
+	//  pales
 	board->leftPale->setupTexture();
 	board->rightPale->setupTexture();
+
+	// characters
+	for(vector<Shape *>::iterator it = board->goalCharacters.begin();it != board->goalCharacters.end();it++){
+		(*it)->setupTexture();
+	}
 }
 
 void drawObjects() {
@@ -109,6 +114,11 @@ void drawObjects() {
 	board->leftPale->draw();
 	board->rightPale->draw();
 	// end draw pales
+
+	//draw characters
+	for(vector<Shape *>::iterator it = board->goalCharacters.begin();it != board->goalCharacters.end();it++){
+		(*it)->draw();
+	}
 }
 
 void drawBackground() {
