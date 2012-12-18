@@ -34,7 +34,7 @@ public:
 	float e;
 	float mass;
 	float oneOverMass;
-
+	//solver using Runge-Kutta as a time integration scheme to update positions, angles and velocities
 	RungeKuttaODESolver *solver;
 
 	virtual bool containsShape(Shape *sh, vector<int> &resp, vector<int >&resq) {return 0;};
