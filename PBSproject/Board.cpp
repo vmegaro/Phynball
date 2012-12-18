@@ -332,15 +332,17 @@ void Board::reinitCharPositions() {
 float cdvx, cdvy, cdva, cimp;
 // main method to update the state of every shape after every time step
 void Board::update() {
-	//cout << "Updating" << nl;
+	//if a goal occured we display the animation instead
 	if(shouldDisplyAnimation) {
 		animationFrames ++;
 		if(animationFrames >= 20) {
 			startGoalAnimation();
 			animationFrames ++;
+			// after some time we exert gravity on the letters
 			if(animationFrames == 150) {
 				setGravityToGoalChars(3.0f);
 			}
+			//finally the animation stops
 			if(animationFrames > 350) {
 				shouldDisplyAnimation = false;
 				animationFrames = 0;
@@ -351,9 +353,8 @@ void Board::update() {
 		}
 	}
 
-	// Iteration
+	// we loop 'intermediateSteps' times before updating the screen
 	for(int t = 0; t < intermediateSteps; t++) {
-		//if(otherTeamScore == 2) cout << "update shapes" << nl;
 		// Update position and velocities
 		vector<Shape *>::iterator it1 = shapes->begin(),
 									  it2 = newShapes->begin();
@@ -361,7 +362,6 @@ void Board::update() {
 			(*it1)->update(*it2); // timestep integration
 		}
 
-		//if(otherTeamScore == 2) cout << "update pales" << nl;
 		leftPale->update(leftPale);
 		rightPale->update(rightPale);
 
@@ -372,12 +372,13 @@ void Board::update() {
 
 		vector<Shape *>::iterator sit1, sit2, nsit1, nsit2;
 		vector<Wall *>::iterator wIt;
-		
-		//if(otherTeamScore == 2) cout << "pales collisions" << nl;
 		//Pales collisions
+		// we check for collisions with every dynamic shape
 		for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1) {
 			if(polygonIntersectionTest(*nsit1,leftPale,resp,resq)) {
 				Collision *collision = new Collision();
+				//if a collision occurs, we then create a 'collision' object and add it to the vector
+				//of collisions to be handled.
 				if(resp.size() == 2) {
 					(*nsit1)->setCollisionResponse(
 												leftPale,
@@ -394,7 +395,6 @@ void Board::update() {
 				collisions.push_back(collision);
 				resp.clear();resq.clear();
 			}
-
 			if(polygonIntersectionTest(*nsit1,rightPale,resp,resq)) {
 				Collision *collision = new Collision();
 				if(resp.size() == 2) {
@@ -414,14 +414,11 @@ void Board::update() {
 				resp.clear();resq.clear();
 			}
 		}
-
-		//if(otherTeamScore == 2) cout << "walls collision" << nl;
 		//Wall collisions
 		int w = 0;
 		for(wIt = walls->begin(); wIt != walls->end();++wIt,w++) {
 			int s = 0;
 			for(nsit1 = newShapes->begin(); nsit1 != newShapes->end();++nsit1,s++) {
-				//if(otherTeamScore == 2) cout << w << " <-> " << s << nl;
 				if(polygonIntersectionTest(*nsit1,*wIt,resp,resq)) {
 					Collision *collision = new Collision();
 					if(resp.size() == 2) {
@@ -442,7 +439,6 @@ void Board::update() {
 				}
 			}
 		}
-		//if(otherTeamScore == 2) cout << "shapes collision" << nl;
 		// Dynamic objects collisions
 		for(sit1 = shapes->begin() ,nsit1 = newShapes->begin(), collisionInd = 0;nsit1 != newShapes->end();++sit1, ++nsit1, collisionInd++) {
 			for(sit2 = sit1+1, nsit2 = nsit1+1; nsit2 != newShapes->end();++sit2, ++nsit2) {
@@ -466,9 +462,8 @@ void Board::update() {
 				}
 			}
 		}
-
-		//if(otherTeamScore == 2) cout << "solve collisions" << nl;
 		// Update using impulses
+		// Finally, we resolve all collisions in the vector
 		vector<Collision *>::iterator colIt = collisions.begin();
 		for(;colIt != collisions.end();++colIt) {
 			(*colIt)->resolve();
@@ -479,17 +474,8 @@ void Board::update() {
 		shapes = newShapes;
 		newShapes = aux;
 	}
-	/*
-	if(GetAsyncKeyState(VkKeyScan('x')) <= keyPress) leftPale->setGoUp();
-	else leftPale->setGoDown();
-	if(GetAsyncKeyState(VkKeyScan('n')) <= keyPress) rightPale->setGoUp();
-	else rightPale->setGoDown();
-	*/
-
 	//Check and set if someone scored
-	//if(otherTeamScore == 2) cout << "setscore0" << nl;
 	setScore();
-	//if(otherTeamScore == 2) cout << "setscore1" << nl;
 	if(isPlayerGoal) {
 		playerScore++;
 		shouldDisplyAnimation = true;
@@ -498,5 +484,4 @@ void Board::update() {
 		otherTeamScore++;
 		shouldDisplyAnimation = true;
 	}
-	//if(otherTeamScore == 2) cout << "end" << nl;
 }
