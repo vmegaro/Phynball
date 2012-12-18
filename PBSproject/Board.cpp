@@ -298,8 +298,7 @@ void Board::update() {
 		animationFrames ++;
 		if(animationFrames >= 20) {
 			startGoalAnimation();
-			animationFrames ++;
-			if(animationFrames == 150) {
+			if(animationFrames == 100) {
 				setGravityToGoalChars(3.0f);
 			}
 			if(animationFrames > 350) {

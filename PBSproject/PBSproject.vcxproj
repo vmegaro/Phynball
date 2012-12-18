@@ -23,8 +23,11 @@
     <ClInclude Include="LeftWall.h" />
     <ClInclude Include="MassSpringObject.h" />
     <ClInclude Include="MassSpringParticle.h" />
+    <ClInclude Include="NakedMan.h" />
+    <ClInclude Include="Net.h" />
     <ClInclude Include="Pale.h" />
     <ClInclude Include="PlayBall.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="RectangleMSO.h" />
     <ClInclude Include="RectangleRB.h" />
     <ClInclude Include="RectangleWall.h" />
@@ -53,8 +56,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MassSpringObject.cpp" />
     <ClCompile Include="MassSpringParticle.cpp" />
+    <ClCompile Include="NakedMan.cpp" />
+    <ClCompile Include="Net.cpp" />
     <ClCompile Include="Pale.cpp" />
     <ClCompile Include="PlayBall.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="RectangleMSO.cpp" />
     <ClCompile Include="RectangleRB.cpp" />
     <ClCompile Include="RectangleWall.cpp" />

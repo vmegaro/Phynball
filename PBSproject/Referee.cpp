@@ -1,35 +1,10 @@
 #include "Referee.h"
 #include "Constants.h"
 
-#define controlPoint1x 25.0f
-#define controlPoint2x 75.0f
-#define controlPoint12y 70.0f
-
-enum VerticesPositions
-{
-	nex = 0,
-	ney,
-	nwx,
-	nwy,
-	swx,
-	swy,
-	sex,
-	sey,
-	NUM_Vertices
-};
-
-Referee::Referee(Shape *_playBall) : RectangleRB(50.0f, 50.0f,
-												0.0f, 0.0f,
-												5.0f, 5.0f,
-												0.0f, 0.0f,
-												1.0f, 0.0f, 0.0f,
-												1.0f,
-												NULL) {
+Referee::Referee() : DeformableObject(DeformableObject::VertexList_Rectangle(10,40,5,10),DeformableObject::FaceList_Rectangle(),
+						DeformableObject::Contour_Rectangle(),0.03f,1.0f,0.3f,0.3f,0.3f,0.3f) {
 
 	textureName = "../images/referee.png";
-	
-	solver = new RungeKuttaODESolver(timeStep);
-
 }
 
 Referee * Referee::clone() {
@@ -37,8 +12,7 @@ Referee * Referee::clone() {
 }
 
 void Referee::update(Shape *newSh) {
-	this->RigidBody::update(newSh);
-	this->RectangleRB::updateVertices();
+	this->DeformableObject::update(newSh);
 }
 
 void Referee::draw() {
@@ -48,15 +22,33 @@ void Referee::draw() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLE_FAN);
+		glTexCoord2f(0.5, 0.5);
+		setVertexOpenGL(12.5,45);
+
 		glTexCoord2f(0.0, 0.0);
-		setVertexOpenGL(vertices.at(swx),vertices.at(swy));
-		glTexCoord2f(0.0, 1.0);
-		setVertexOpenGL(vertices.at(nwx),vertices.at(nwy));
-		glTexCoord2f(1.0, 1.0);
-		setVertexOpenGL(vertices.at(nex),vertices.at(ney));
+		setVertexOpenGL(vertices.at(0),vertices.at(1));
+		glTexCoord2f(0.25, 0.0);
+		setVertexOpenGL(vertices.at(2),vertices.at(3));
+		glTexCoord2f(0.5, 0.0);
+		setVertexOpenGL(vertices.at(4),vertices.at(5));
+		glTexCoord2f(0.75, 0.0);
+		setVertexOpenGL(vertices.at(6),vertices.at(7));
 		glTexCoord2f(1.0, 0.0);
-		setVertexOpenGL(vertices.at(sex),vertices.at(sey));
+		setVertexOpenGL(vertices.at(8),vertices.at(9));
+		glTexCoord2f(1.0, 1.0);
+		setVertexOpenGL(vertices.at(10),vertices.at(11));
+		glTexCoord2f(0.75, 1.0);
+		setVertexOpenGL(vertices.at(12),vertices.at(13));
+		glTexCoord2f(0.5, 1.0);
+		setVertexOpenGL(vertices.at(14),vertices.at(15));
+		glTexCoord2f(0.25, 1.0);
+		setVertexOpenGL(vertices.at(16),vertices.at(17));
+		glTexCoord2f(0.0, 1.0);
+		setVertexOpenGL(vertices.at(18),vertices.at(19));
+		glTexCoord2f(0.0, 0.0);
+		setVertexOpenGL(vertices.at(0),vertices.at(1));
+
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);

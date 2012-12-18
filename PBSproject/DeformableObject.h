@@ -26,6 +26,17 @@ const float &rx, const float &ry, const vector<int> &cv,const float &impulseCoef
 	float length;
 	float e;
 	float oneOverMass;
+
+	static vector<int> FaceList_Rectangle();
+	static vector<float> VertexList_Rectangle(float x,float y,float width,float height);
+	static vector<int> Contour_Rectangle();
+	static vector<int> FaceList_Circle();
+	static vector<float> VertexList_Circle(float x,float y,float radius);
+	static vector<int> Contour_Circle();
+	static vector<int> FaceList_V();
+	static vector<float> VertexList_V(float x,float y,float width,float height);
+	static vector<int> Contour_V();
+
 protected :
 	MatrixXf K;
 	MatrixXf revMass;
@@ -34,7 +45,6 @@ protected :
 	vector<int> flist;
 	Eigen::ColPivHouseholderQR<MatrixXf> solver;
 	float E, nu, rho, alpha, beta;
-
 };
 
 #endif /* DEFORMABLEOBJECT_H_ */

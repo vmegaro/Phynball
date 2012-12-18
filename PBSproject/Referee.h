@@ -1,10 +1,10 @@
 #ifndef C_Referee
 #define C_Referee
-#include "RectangleRB.h"
+#include "DeformableObject.h"
 
-class Referee: public RectangleRB{
+class Referee: public DeformableObject{
 public:
-	Referee(Shape *_playBall);
+	Referee();
 
 	virtual void update(Shape *newSh);
 
@@ -13,7 +13,6 @@ public:
 	virtual void draw();
 
 protected:
-	RigidBody *playBall;
 };
 
 #endif
