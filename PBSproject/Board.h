@@ -7,7 +7,10 @@
 #include "PlayBall.h"
 
 using namespace std;
-
+/*
+Main class containing all needed objects and methods to set up the game and 
+update the position of objects and the score.
+*/
 class Board
 {
 public:
@@ -20,10 +23,13 @@ public:
 	void addRightPale(Shape *p);
 	void addPlayBall(Shape *_playBall);
 
+	void moveLeftPale(bool b);
+	void moveRightPale(bool b);
+
 	void update();
-
 	void updatePaleDirection(int paleType, int paleDir);
-
+	// during each update, the new states of all dynamic shapes in 'shapes' are stored in 'newShapes' 
+	// and the vectors 'shapes' and 'newShapes' are switched at the end of the update
 	vector<Shape *> *shapes;
 	vector<Shape *> *newShapes;
 	vector<Wall *> *walls;

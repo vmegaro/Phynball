@@ -5,27 +5,39 @@
 #include "Collision.h"
 #include "Constants.h"
 #include "../libs/Simple OpenGL Image Library/src/SOIL.h"
-
+/*
+Base class of all objects in the scene
+*/
 class Shape {
 public:
 	Shape() {textureName = 0;};
+	// clonin function to duplicate the object
 	virtual Shape *clone() {return 0;};
+	// update all parameters of the objects and put the new values in 'newSh'
 	virtual void update(Shape *newSh) {};
+	// create a 'collision' object regarding a collision occuring with vertex 'pointIndex' of 'collidingSh' on edge 'edgeIndex' of 'this'
 	virtual void setCollisionResponse(Shape *collidingSh, const int &pointIndex, const int &edgeIndex, Collision *collision) {};
+	// update the state of 'this' after a collision occurs on vertices in 'cv' with an impulse coefficient of 'impulseCoeff'
+	// along the vector given by 'nx' and 'ny'. 'rx' and 'ry' are distances used to sompute the influence on the rotation of 'this'
 	virtual void handleResponseImpulse(const float &nx, const float &ny, const float &rx, const float &ry,
 						const std::vector<int> &cv, const float &impulseCoeff){};
 	virtual void copyTo(Shape *newShape) {};
+	// used to determine if this shape is a rigid body or a deformable object
 	virtual int nature(){return 0;};
-
+	// coordinates of the vertices of the contour of this shape
 	std::vector<float> vertices;
+	//number of vertices of the contour
 	int nVertices;
-
+	// position and angle of the center of mass
 	float xPos,yPos,angularPos;
+	// velocities of the center of mass
 	float xVel,yVel,angularVel;
-
+	// default color
 	double color[3];
 	GLuint texture;
+	//texture path
 	char *textureName;
+	// load the texture
 	virtual void setupTexture() {
 		if(!textureName) return;
 		const char *fname = textureName;
@@ -49,6 +61,7 @@ public:
 			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 		}
 	};
+	//rendering function
 	virtual void draw() {
 		glColor3dv(color);
 		glBegin(GL_POLYGON);
@@ -73,7 +86,7 @@ public:
 		}
 		glEnd();
 	};
-
+	// radius of the bounding circle
 	float criticalRadius;
 };
 

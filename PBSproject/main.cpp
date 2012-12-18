@@ -22,6 +22,7 @@
 #include "Net.h"
 #include "NakedMan.h"
 
+//create all objects needed to launch the game and start it
 void setupAndRun(int argc, char** argv) {
 	Board *board = new Board();
 	RungeKuttaODESolver *solver = new RungeKuttaODESolver(timeStep);
