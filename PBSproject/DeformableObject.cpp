@@ -5,6 +5,7 @@
 #include "RigidBody.h"
 #include "Constants.h"
 
+//compute gradient of the basis function in triangle (x0,x1,x2) where the basis function is equal to 1 in x0
 void ComputeDerivatives(float* x0,float* x1,float* x2,float* grad){
 	grad[0]=(x2[1]-x1[1])/((x1[0]-x0[0])*(x2[1]-x0[1])-(x1[1]-x0[1])*(x2[0]-x0[0]));
 	grad[1]=(x1[0]-x2[0])/((x1[0]-x0[0])*(x2[1]-x0[1])-(x1[1]-x0[1])*(x2[0]-x0[0]));
@@ -37,6 +38,7 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	}
 	K.resize(2*N,2*N);
 	K.setZero();
+	//compute K, mass, oneOverMass, xPos and yPos
 	ComputeStiffnessMatrixandMass();
 	color[0] = 0.8;
 	color[1] = 0.6;
@@ -44,14 +46,17 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	MatrixXf I;
 	I.resize(2*N,2*N);
 	I.setIdentity();
+	//compute revMass
 	revMass.resize(2*N,2*N);
 	revMass.setZero();
 	for(int i=0;i<N;i++){
 		revMass(2*i,2*i)=1/mass[i];
 		revMass(2*i+1,2*i+1)=revMass(2*i,2*i);
 	}
+	// compute the solver
 	Eigen::ColPivHouseholderQR<MatrixXf> _solver((1+alpha*dt)*I+dt*(beta+dt)*revMass*K);
 	solver=_solver;
+	//compute the radius of the bounding sphere
 	criticalRadius=(vlist[2*contour[0]]-xPos)*(vlist[2*contour[0]]-xPos)+(vlist[2*contour[0]+1]-yPos)*(vlist[2*contour[0]+1]-yPos);
 	for(int i=1;i<n;i++){
 		float radius=(vlist[2*contour[i]]-xPos)*(vlist[2*contour[i]]-xPos)+(vlist[2*contour[i]+1]-yPos)*(vlist[2*contour[i]+1]-yPos);
@@ -60,10 +65,12 @@ DeformableObject::DeformableObject(vector<float> _vlist,vector<int> _flist, vect
 	criticalRadius=sqrt(criticalRadius);
 }
 
+//compute K, mass, oneOverMass, xPos and yPos
 void DeformableObject::ComputeStiffnessMatrixandMass(){
 	int numf=flist.size()/3;
 	int i;
 	float totmass=0.0f;
+	// add the contribution of all faces
 	for(i=0;i<numf;i++){
 		int ind0=flist[3*i];
 		int ind1=flist[3*i+1];
@@ -141,19 +148,25 @@ void DeformableObject::ComputeStiffnessMatrixandMass(){
 void DeformableObject::update(Shape* newSh){
 	DeformableObject *newDO = (DeformableObject*) newSh;
 	float dt=timeStep;
+	//compute new velocities
 	newDO->velocity = solver.solve(velocity+dt*revMass*(force-K*u));
+	// clamp velocities to keep the simulation stable
 	for(int i=0;i<mass.size();i++){
 		if(newDO->velocity(2*i)>clamp) newDO->velocity(2*i)=clamp;
 		if(newDO->velocity(2*i)<-clamp) newDO->velocity(2*i)=-clamp;
 		if(newDO->velocity(2*i+1)>clamp) newDO->velocity(2*i+1)=clamp;
 		if(newDO->velocity(2*i+1)<-clamp) newDO->velocity(2*i+1)=-clamp;
 	}
+	//compute new deformation
 	newDO->u=u+dt*newDO->velocity;
+	// update the position of the center of mass
 	for(int i=0;i<mass.size();i++){
 		newDO->xPos+=(newDO->u(2*i)-u(2*i))*mass[i]*oneOverMass;
 		newDO->yPos+=(newDO->u(2*i+1)-u(2*i+1))*mass[i]*oneOverMass;
 	}
+	//reset the forces to 0
 	force.setZero();
+	//update the contour and radius of the bounding circle
 	for(int i=0;i<nVertices;i++){
 		newDO->vertices[2*i]=vlist[2*contour[i]]+newDO->u(contour[i]*2);
 		newDO->vertices[2*i+1]=vlist[2*contour[i]+1]+newDO->u(contour[i]*2+1);
@@ -169,6 +182,7 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 	float rxa,rya,rxb,ryb;
 	float xCollision,yCollision;
 	float impulseCoeff;
+	//the collision handling depends on the nature of the colliding shape
 	if(collidingSh->nature() == kShapeNatureDO){
 		DeformableObject *collidingDo = (DeformableObject*) collidingSh;
 		xCollision=collidingDo->vertices.at(pointIndex*2);
@@ -240,7 +254,7 @@ void DeformableObject::setCollisionResponse(Shape *collidingSh, const int &point
 		collision->resolved = 0;
 	}
 }
-
+// create forces after a collision occured
 void DeformableObject::handleResponseImpulse(const float &nx, const float &ny,
 const float &rx, const float &ry, const vector<int> &cv, const float &impulseCoeff){
 	int n = cv.size();
