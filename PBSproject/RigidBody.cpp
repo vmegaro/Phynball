@@ -15,7 +15,7 @@ void RigidBody::setYAcc(const float &x, const float &v, float &a){
 void RigidBody::setAngularAcc(const float &x, const float &v, float &a){
 	a = (Rx*Ty-Ry*Tx - friction*angularVel)*oneOverI;
 }
-
+//ask the solver to do its job
 void RigidBody::update(Shape *newSh){
 	RigidBody *newRb = (RigidBody *)newSh;
 	solver->updateRigidBodyPositionAngleAndVelocities(this, newRb);
@@ -29,6 +29,7 @@ float rxa, rya, rxb, ryb;
 float jOverMass;
 float xCollision, yCollision;
 void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, const int &edgeIndex, Collision *collision){
+	//the collision handling depends on the nature of the colliding shape
 	if(collidingSh->nature() == kShapeNatureRB){
 		RigidBody *collidingRb = (RigidBody *)collidingSh;
 		xCollision=collidingRb->vertices.at(pointIndex*2);
@@ -109,7 +110,7 @@ void RigidBody::setCollisionResponse(Shape *collidingSh, const int &pointIndex, 
 		collision->resolved = 0;
 	}
 }
-
+// do the necessary modifications on velocities and angulat velocities after the collision
 void RigidBody::handleResponseImpulse(const float &nx, const float &ny, const float &rx, const float &ry, 
 					const std::vector<int> &cv, const float &impulseCoeff){
 	jOverMass = impulseCoeff*oneOverMass;
