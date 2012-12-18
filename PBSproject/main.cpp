@@ -19,6 +19,7 @@
 #include "Referee.h"
 #include "RectangleMSO.h"
 
+//helper functions to create deformable objects
 vector<int> FaceList_Rectangle(){
 	vector<int> face (48);
 	face[0]=0;face[1]=1;face[2]=5;
@@ -170,6 +171,7 @@ vector<int> Contour_V(){
 	return contour;
 }
 
+//create all objects needed to launch the game and start it
 void setupAndRun(int argc, char** argv) {
 	Board *board = new Board();
 	RungeKuttaODESolver *solver = new RungeKuttaODESolver(timeStep);
