@@ -5,6 +5,15 @@
 #include <windows.h>
 #include <fstream>
 
+/*
+Intersection test between two polygons (not necessarily convex) 'sh1' and 'sh2'. First we check if the bounding circles 
+collide or not, then if it is the case we perform a point-in-polygon test for every vertex of each polygon,
+and finally we look for intersecting edges in the neighborhood of the collision point.
+The vectors 'resp' and 'resq' store the indexes of the vertices engaged in the collision : the "piercing" vertex 
+or the two vertices of a "pierced" edge. So if a collision occurs one of them will contain 1 vertex and the other 2.
+'resp' corresponds to 'sh1' and resq to 'sh2'.
+We tried to implement more shape-specific intersection tests with rigid bodies but could not make it in time.
+*/
 bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, vector<int >&resq){
 
 	// Broad-phase: discard objects with no bounding areas averlap
@@ -36,20 +45,26 @@ bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, v
 	int i,j,k,l;
 	float x,y,det1,det2;
 	bool odd = false;
+	// loop over 'sh1' vertices
 	for(i=0;i<m;i++){
 		x=p[2*i];
 		y=p[2*i+1];
 		k=n-1;
+		// loop over 'sh2' edges
 		for(j=0;j<n;j++){
+			// point-in-polygon test
 			if ((((q[2*j+1]<y)&&(q[2*k+1]>=y))||((q[2*k+1]<y)&&(q[2*j+1]>=y)))&&((q[2*j]<=x)||(q[2*k]<=x))) {
 			      if (q[2*j]+(y-q[2*j+1])/(q[2*k+1]-q[2*j+1])*(q[2*k]-q[2*j])<x) odd=!odd;
 			}
 			k=j;
 		}
+		// collision found
 		if(odd){
 			resp.push_back(i);
 			l=(i+1)%m;
 			k=n-1;
+			//we look for intersecting edges with the two edges adjacent to the collision point
+			// with the first edge
 			for(j=0;j<n;j++){
 				det1=((q[2*j+1]-p[2*l+1])*(p[2*i]-p[2*l])-(q[2*j]-p[2*l])*(p[2*i+1]-p[2*l+1]))*((q[2*k+1]-p[2*l+1])*(p[2*i]-p[2*l])-(q[2*k]-p[2*l])*(p[2*i+1]-p[2*l+1]));
 				det2=((p[2*i+1]-q[2*k+1])*(q[2*j]-q[2*k])-(p[2*i]-q[2*k])*(q[2*j+1]-q[2*k+1]))*((p[2*l+1]-q[2*k+1])*(q[2*j]-q[2*k])-(p[2*l]-q[2*k])*(q[2*j+1]-q[2*k+1]));
@@ -62,6 +77,7 @@ bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, v
 			}
 			l=(m+i-1)%m;
 			k=n-1;
+			//with the second edge
 			for(j=0;j<n;j++){
 				det1=((q[2*j+1]-p[2*l+1])*(p[2*i]-p[2*l])-(q[2*j]-p[2*l])*(p[2*i+1]-p[2*l+1]))*((q[2*k+1]-p[2*l+1])*(p[2*i]-p[2*l])-(q[2*k]-p[2*l])*(p[2*i+1]-p[2*l+1]));
 				det2=((p[2*i+1]-q[2*k+1])*(q[2*j]-q[2*k])-(p[2*i]-q[2*k])*(q[2*j+1]-q[2*k+1]))*((p[2*l+1]-q[2*k+1])*(q[2*j]-q[2*k])-(p[2*l]-q[2*k])*(q[2*j+1]-q[2*k+1]));
@@ -77,6 +93,7 @@ bool Board::polygonIntersectionTest(Shape *sh1, Shape *sh2, vector<int> &resp, v
 			return true;
 		}
 	}
+	// same thing but this time we loop over 'sh2' vertices
 	for(i=0;i<n;i++){
 		x=q[2*i];
 		y=q[2*i+1];
@@ -178,6 +195,8 @@ void Board::updatePaleDirection(int paleType, int paleDir) {
 
 bool wasGoal = false;
 bool isOtherTeamGoal = false, isPlayerGoal = false;
+// the following method checks if the condition of a goal are met and prevents one goal from turning into several ones
+// because of the too small time step.
 void Board::setScore() {
 	isOtherTeamGoal = false; isPlayerGoal = false;
 	if(playBall->yPos >= 80.0 && 
@@ -198,6 +217,8 @@ void Board::setScore() {
 bool collisionFound = false;
 float positionNoise;
 vector<int> resp, resq;
+// move the ball back after a goal. It tries to put the ball back in its original position and if it's not
+// possible because a collsion would occur it adds some noise to the position and tries again.
 void Board::restoreBallPosition() {
 	//cout << "rest0" << nl;
 	playBall->xPos = 70.0f;
@@ -243,7 +264,9 @@ void Board::moveRightPale(bool b){
 int collisionInd;
 int animationFrames = 0;
 bool shouldDisplyAnimation = false;
+// start the animation after each goal
 void Board::startGoalAnimation() {
+	// make the four letters 'g', 'o', 'a' and 'l' move and collide like normal dynamic shapes
 	for(int i = 0; i < intermediateSteps; i++) {
 		vector<Shape *>::iterator it1 = goalCharacters.begin();
 		for(;it1 != goalCharacters.end();++it1){
@@ -283,7 +306,7 @@ void Board::startGoalAnimation() {
 	}
 	
 }
-
+//function used to exert gravity on the four letters, to make them fall after they collide
 void Board::setGravityToGoalChars(float gravity) {
 	CharacterRB *ch;
 	ch = (CharacterRB *)goalCharacters.at(0);
@@ -296,6 +319,7 @@ void Board::setGravityToGoalChars(float gravity) {
 	ch->gravityScale = gravity;
 }
 
+// reinitialize the position of the four letters after the animation
 void Board::reinitCharPositions() {
 	setGravityToGoalChars(0.0f);
 	CharacterRB *ch;
@@ -306,6 +330,7 @@ void Board::reinitCharPositions() {
 }
 
 float cdvx, cdvy, cdva, cimp;
+// main method to update the state of every shape after every time step
 void Board::update() {
 	//cout << "Updating" << nl;
 	if(shouldDisplyAnimation) {
