@@ -30,7 +30,7 @@ public:
 	int nature(){return 1;};
 
 	float Tx,Ty,Rx,Ry;
-
+	//elasticity coefficient to adapt the strength of the response in case of collision
 	float e;
 	float mass;
 	float oneOverMass;
