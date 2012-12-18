@@ -54,7 +54,7 @@ unsigned int getTime()
 }
 
 GLuint bgTex;
-
+//ask all shapes and background to load their textures from memory
 void prepareTexture() {
 
 	// Texture for background
@@ -98,7 +98,7 @@ void prepareTexture() {
 		(*it)->setupTexture();
 	}
 }
-
+//ask all shapes to be drawn on the screen
 void drawObjects() {
 	//draw dynamic objects
 	for(vector<Shape *>::iterator it = board->shapes->begin();it != board->shapes->end();it++){
@@ -140,6 +140,7 @@ void drawBackground() {
 }
 
 char score[25];
+//function used to draw the scores
 void drawString (void * font, char *s, float x, float y){
      unsigned int i;
      glRasterPos2f(x, y);
@@ -147,7 +148,7 @@ void drawString (void * font, char *s, float x, float y){
      for (i = 0; i < strlen (s); i++)
           glutBitmapCharacter (font, s[i]);
 }
-
+//ask the board to update all shapes ('intermediateSteps' times) and then draw everything on the screen
 void display(){
 	if (getTime() - next_update > MICROSECS_PER_FRAME) {
 		next_update += MICROSECS_PER_FRAME;
@@ -196,23 +197,21 @@ void reshape(int width, int height){
 void idle(){
 	glutPostRedisplay();
 }
-
+// input taking to move the pales up
 void keypress(unsigned char key, int x, int y){
 	if(key=='x')
 		board->moveLeftPale(true);
 	if(key=='n')
 		board->moveRightPale(true);
-	cout<<key<<" pressed " ;
 }
-
+// detect when keys are released to move the pales down
 void keyreleased(unsigned char key, int x, int y){
 	if(key=='x')
 		board->moveLeftPale(false);
 	if(key=='n')
 		board->moveRightPale(false);
-	cout<<key<<" released ";
 }
-
+//core of the renderer and main loop
 Renderer::Renderer(int* argc, char** argv, Board *brd){
 	#if MACVERSION==1
 	// nothing to do...
