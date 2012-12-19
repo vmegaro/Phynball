@@ -7,7 +7,7 @@ Instruction to build on Windows:
 
 - Downlaod the zip file
 - Extract all files
-- Open VisualStudio 2010
+- Open VisualStudio 2010 and open the solution (actually double clicking on the solution could fail, so open it from VisualStudio)
 - Go to Project/Properties/Linker/General
 - Under Additional Library Directories add "PATH TO YOUR FOLDER"\libs\Simple OpenGL Image Library\lib\
 - Compile in Release/Win32 mode
