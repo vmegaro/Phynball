@@ -177,7 +177,20 @@ void display(){
 }
 
 void reshape(int width, int height){
+	/*
+	width = 600;
+	height = 600;
+	GLdouble g[16];
+	glGetDoublev(GL_PROJECTION, g);
+	for(int k=0;k<16;k+=4){
+		for(int i=0;i<4;i++)
+			cout<<g[k+i]<<"\t";
+		cout<<"\n";
+	}
+	cout<<"\n";
+	*/
 	glViewport(0, 0, windowWidth, windowHeight);
+	//glOrtho(-width/2, width/2, -height/2, height/2, 1, 100);
 }
 
 void idle(){

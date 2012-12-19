@@ -28,8 +28,10 @@ public:
 	std::vector<float> vertices;
 	//number of vertices of the contour
 	int nVertices;
-	// position of the center of mass
-	float xPos,yPos;
+	// position and angle of the center of mass
+	float xPos,yPos,angularPos;
+	// velocities of the center of mass
+	float xVel,yVel,angularVel;
 	// default color
 	double color[3];
 	GLuint texture;

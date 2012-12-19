@@ -69,7 +69,6 @@ enum shapeType {
 #define kPaleDownDir 0
 #define kPaleUpDir 1
 
-//maximum velocities for rigid bodies
 #define maxRigidVel 40.0f
 #define maxRigidAngularVel 8.0f
 #define minRigidVel 0.0f

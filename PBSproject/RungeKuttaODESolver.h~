@@ -15,9 +15,8 @@ private:
 	//timestep, timestep divided by 2 and by 6
 	float h,hHalf,hSixth;
 	float hc,hHalfc,hSixthc;
-	//intermediate positions in Runge-Kutta's computation
+
 	float kx1,kx2,kx3,kx4;
-	//intermediate velocities in Runge-Kutta's computation
 	float kv1,kv2,kv3,kv4;
 
 	float finalValue;

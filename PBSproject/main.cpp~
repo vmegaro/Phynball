@@ -17,6 +17,7 @@
 #include "PlayBall.h"
 #include "GoalKeeper.h"
 #include "Referee.h"
+#include "RectangleMSO.h"
 #include "Player.h"
 #include "Net.h"
 #include "NakedMan.h"

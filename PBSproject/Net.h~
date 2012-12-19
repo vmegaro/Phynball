@@ -2,9 +2,6 @@
 #define C_Net
 #include "DeformableObject.h"
 
-/*
-Used to represent the net to hit with the ball. This object includes texturing.
-*/
 class Net: public DeformableObject{
 public:
 	Net();

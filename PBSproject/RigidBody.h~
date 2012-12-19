@@ -28,10 +28,7 @@ public:
 	virtual void copyTo(Shape *newShape);
 	virtual RigidBody * clone() {return 0;};
 	int nature(){return 1;};
-	// angulat position of the center of mass
-	float angularPos;
-	// velocities of the center of mass
-	float xVel,yVel,angularVel;
+
 	float Tx,Ty,Rx,Ry;
 	//elasticity coefficient to adapt the strength of the response in case of collision
 	float e;
